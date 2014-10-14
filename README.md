@@ -1,7 +1,7 @@
 usb-relay-hid
 =============
 
-The goal of this project is to provide open-source API for Chinese low-cost USB HID relays
+The goal of this little project is to provide open-source API for Chinese low-cost USB HID relays
 (search on eBay for "5V USB Relay Programmable Computer Control For Smart Home").
 
 ![](http://vusb.wdfiles.com/local--files/project:driver-less-usb-relays-hid-interface/relay2.jpg)
@@ -19,7 +19,7 @@ We are not associated with the manufacturer(s) of these devices or author(s) of 
 
 Our intent is to make this software free; free even from restrictions associated with the GPL. Currently we reuse some code from other V-USB projects, which is dual-licensed: GPL + commercial. Until we remove this code, we cannot set any other license. 
 
-We could not find any copyright information in the software package offered by the eBay sellers. No source code was reused from this package, besides of the C API declaration (the .h file).
+We could not locate any copyright information in the software package offered by the eBay sellers. No source code was reused from that package, besides of the C API header (the .h file).
 
 Current state
 -------------
@@ -28,14 +28,24 @@ A simple command-line utility for Linux (x86 or x64) and Windows.
 This is enough for our own usage.
 
 - Windows version builds with VC++ and WDK 7.1
-- Linux version builds with gcc and libusb v. 0.9. Tested on RH and Ubuntu.
-
+- Linux version builds with gcc and libusb v. 0.1. Tested on RH and Ubuntu.
 
 
 To do:
 -------
 
  * Reconstruct the API library, which will be binary compatible with the original software package.
- * Move the Linux variant to modern libusb (1.x)
+ * Move the Linux variant to recommended libusb version (1.x)
  * Make bindings for Python and Java
- * Maybe, reconstruct the GUI utility
+ * Maybe reconstruct the GUI utility
+ * Maybe port the Windows variant to GNU (mingw) toolchain
+ 
+Making a proper library will be hard, because of hot-plug and removal of USB devices. The command-line utility isn't affected by hot plug/removal, but GUI clients of the library will need to re-enumerate the devices or react to PnP events in OS-specific way. We won't support this in the library itself. Neither we'll support locking for multiple thread access.
+
+
+Misc.
+-----
+
+Related projects:
+
+[USB Relay](https://github.com/johannesk/usb-relay)  by Johannes Krude - complete project with hardware and firmware, based on V-USB, but not HID - so requires a driver.
