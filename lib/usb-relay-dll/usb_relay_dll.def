@@ -1,0 +1,20 @@
+LIBRARY USB_RELAY_DEVICE
+VERSION 1.0
+
+EXPORTS
+; All exports are CDECL
+
+usb_relay_device_close
+usb_relay_device_close_all_relay_channel
+usb_relay_device_close_one_relay_channel
+usb_relay_device_enumerate
+usb_relay_device_free_enumerate
+usb_relay_device_get_status
+usb_relay_device_open
+usb_relay_device_open_all_relay_channel
+usb_relay_device_open_one_relay_channel
+usb_relay_device_open_with_serial_number
+usb_relay_exit
+usb_relay_init
+
+; END
