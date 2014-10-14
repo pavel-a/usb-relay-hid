@@ -1,0 +1,34 @@
+;
+; http://editorconfig.org/#supported-properties
+root = true  ; top-most EditorConfig file
+
+[*]
+end_of_line = lf
+insert_final_newline = false
+
+; 4 space indentation
+[*.c]
+charset = latin1
+indent_style = space
+indent_size = 4
+
+[*.h]
+charset = latin1
+indent_style = space
+indent_size = 4
+
+[*.cpp]
+charset = latin1
+indent_style = space
+indent_size = 4
+
+[*.txt]
+indent_style = tab
+indent_size = 8
+end_of_line = crlf
+;insert_final_newline = false
+
+[*.bat]
+end_of_line = crlf
+indent_style = space
+indent_size = 2

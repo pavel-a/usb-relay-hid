@@ -2,10 +2,11 @@
 //
 // pa01 15-Apr-2014
 // Currently finds the 1st matching device by ven,dev, product name string.
+// Two channel devices only!
 // TODO:
 // - Enum all matching devices, select one by ID
 // - Determine the relay model (1 or 2 or more) by product string? 
-// Windows build: using VC++2008 & WDK7.1
+// Build for Windows: using VC++ 2008 and WDK7.1
 //~~~~~~~~~~~~~~~~~~~~~~~~
 
 /* Prototype: V-USB example: vusb-20121206/examples/hid-data/commandline/hidtool.c 
@@ -211,7 +212,7 @@ static int rel_onoff( USBDEVHANDLE dev, int is_on, char const *numstr )
 
 int main(int argc, char **argv)
 {
-    usbDevice_t *dev;
+    USBDEVHANDLE dev;
     int         err;
     char const *arg1 = (argc >= 2) ? argv[1] : NULL;
     char const *arg2 = (argc >= 3) ? argv[2] : NULL;
