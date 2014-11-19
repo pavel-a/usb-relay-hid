@@ -1,7 +1,7 @@
 Command line utility for Chinese USB HID relays
 (USB 1.1 HID devices, VEN=5824 (0x16c0) DEV=1503 (0x05DF), based on the V-USB project)
 
-Rev. 1.0 (16-apr-2014)
+Rev. 1.1 (18-Nov-2014)
 
 Usage:
   usbrelay-cmd ON|OFF <num>   -- turn the relay ON or OFF
@@ -15,7 +15,7 @@ The ON state is when the red LED is on, and the Normally Open contacts are conne
 
 Note: In the original s/w readme, "Open" means ON, "Close" means OFF.
   
-Currently tested only with the 2-relay device.
+Currently tested with 1 and 2-relay devices.
 Finds the FIRST AVAILABLE RELAY device! Does not address by the "unique ID" yet!
 
 SOURCE based on a V-USB HID example.
@@ -41,10 +41,11 @@ For Linux (PC, x86):
 
 Other TODO's
 ============
-TODO: support multiple devices, support one-relay and other existing variants
-  usbrelay-cmd -SN=XXXXX ON|OFF <num>
-  usbrelay-cmd -SN=XXXXX  STATE       
-    or -s XXXXX or --SN or -ID ...
+TODO: support multiple devices, support other existing variants
+  usbrelay-cmd -ID=XXXXX ON|OFF <num>
+  usbrelay-cmd -ID=XXXXX  STATE       
+    or -s XXXXX or --SN 
+    -ID=* --ANY any one?
     
  *** Check that these devices indeed have unique IDs!
   The orig. h file mentions  function:   usb_relay_device_set_serial(int hHandle, char serial[5]);
@@ -66,5 +67,5 @@ Creation Date: 2008-04-11
 ~~
 The relay device ID - from HID attributes:
 vendorName = "www.dcttech.com" -> this site does not exist (squatted)
-productName = "USBRelay2"
+productName = "USBRelayN" where N=1|2|4
 

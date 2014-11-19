@@ -12,7 +12,5 @@ Two USB HID relays are on eBay
 - Each relay channel has Normally Open and Normally Closed contact. The status LED lighs when the Normally Open contacts get closed. We'll name this state "**ON**", and the "normal" state - "**OFF**".
 - The USB interface is low-speed (USB 1.1) HID, based on [V-USB](http://www.obdev.at/products/vusb/) software USB emulation library.
 - The USB device ID is VEN=16C0 DEV=05DF. This is the shared ID for V-USB HID class devices. The V-USB documentation describes how to detect the real vendor and product IDs for such devices.
-- For the 2-channel boards, the vendor ID is "www.dcttech.com" and product ID is "USBRelay2".
+- For 1 and 2-channel boards, the vendor ID is "www.dcttech.com" and product IDs are "USBRelay1", "USBRelay2".
 - Each board has an unique 5-character ID string in its HID descriptor (not to be confused with the standard USB "serial number"). We don't know whether these IDs are really unique, at least, on all our devices they are different.
-
-
