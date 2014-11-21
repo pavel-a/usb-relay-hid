@@ -1,9 +1,7 @@
 // Chinese USB/HID relay command line tool:
 //
-// pa02 19-Nov-2014 supports 1,2,4 - relay devices
-// Currently finds the 1st matching device by ven,dev, product name string.
-// TODO:
-// - Support multiple devices, select one by ID!
+// pa02 20-Nov-2014 supports 1,2,4 - relay devices
+//
 // Build for Windows: using VC++ 2008 and WDK7.1
 //~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -13,7 +11,7 @@
  * Copyright: (c) 2008 by OBJECTIVE DEVELOPMENT Software GmbH
  */
 
-#define A_VER_STR "r1.1y (1 device only)"
+#define A_VER_STR "r1.2"
 
 #include <stdio.h>
 #include <string.h>
@@ -29,6 +27,24 @@ static int g_max_relay_num = 0;
 static int rel_read_status_raw(USBDEVHANDLE dev, void *raw_data);
 
 /* ------------------------------------------------------------------------- */
+
+static void usage(char *myName)
+{
+    char *p = strrchr(myName, '\\'); /* windows */
+    if (p) myName = p + 1;
+    else p = strrchr(myName, '/'); /* whatever */
+    if (p) myName = p + 1;
+
+    fprintf(stderr, "USBHID relay utility, " A_VER_STR "\n\n");
+    fprintf(stderr, "Usage:\n");
+    fprintf(stderr, "  %s on <num>  - turn relay <num> ON\n", myName);
+    fprintf(stderr, "  %s off <num> - turn relay <num> OFF\n", myName);
+    fprintf(stderr, "  %s state     - print state of the relays\n", myName);
+    fprintf(stderr, "  %s enum      - print state of all relay devices\n", myName);
+    fprintf(stderr, "\nParameter ID=XXXXX selects one device if several are connected.\n");
+	fprintf(stderr, "Example: ID=ABCDE on 1\n");
+}
+
 
 static const char *usbErrorMessage(int errCode)
 {
@@ -119,8 +135,22 @@ static int enumFunc(USBDEVHANDLE dev, void *context)
     }
 
 	DEBUG_PRINT(("Device %s%d found: ID=[%5s]\n", productName, num, &buffer[1]));
-	strcpy( g_enumCtx.id, (char*)&buffer[1] );
     g_max_relay_num = num;
+
+	if ( g_enumCtx.id[0] != 0 )
+	{
+		if ( 0 != memcmp(g_enumCtx.id, &buffer[1], 5) )
+			goto next;
+	}
+#if 0
+	if ( g_enumCtx.mydev )
+	{
+		fprintf(stderr, "ERROR: More than one relay device found. ID must be specified\n");
+		usbhidCloseDevice(dev);
+		usbhidCloseDevice(g_enumCtx.mydev);
+		return 0;
+	}
+#endif
 	g_enumCtx.mydev = dev;
     return 0;
 
@@ -171,22 +201,6 @@ FILE    *fp = stdout;
 #endif
 
 /* ------------------------------------------------------------------------- */
-
-static void usage(char *myName)
-{
-    char *p = strrchr(myName, '\\'); /* windows */
-    if (p) myName = p + 1;
-    else p = strrchr(myName, '/'); /* whatever */
-    if (p) myName = p + 1;
-
-    fprintf(stderr, "USBHID relay utility, " A_VER_STR "\n");
-    fprintf(stderr, "Usage:\n");
-    fprintf(stderr, "  %s on <num>  - turn relay <num> ON\n", myName);
-    fprintf(stderr, "  %s off <num> - turn relay <num> OFF\n", myName);
-    fprintf(stderr, "  %s state     - print state of the relays\n", myName);
-    fprintf(stderr, "  %s enum      - print state of all relay devices\n", myName);
-}
-
 
 // Read state of all relays
 // @return bit mask of all relays (R1->bit 0, R2->bit 1 ...) or -1 on error
@@ -347,6 +361,19 @@ int main(int argc, char **argv)
     if ( strcasecmp(arg1, "enum") == 0 ) {
 		err = show_relays();
 		return err;
+	}
+
+	if ( strncasecmp(arg1, "id=", 3) == 0 ) {
+		if (strlen(&arg1[3]) != 5) {
+			fprintf(stderr, "ERROR: ID must be 5 characters (%s)\n", arg1);
+			return 1;
+		}
+		
+		strcpy( g_enumCtx.id, &arg1[3]);
+
+		// shift following params
+		arg1 = arg2;
+        arg2 = (argc >= 4) ? argv[3] : NULL;
 	}
 
     dev = openDevice();

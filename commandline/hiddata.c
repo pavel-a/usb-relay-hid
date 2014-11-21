@@ -132,7 +132,7 @@ int usbhidEnumDevices(int vendor, int product,
         }
         deviceAttributes.Size = sizeof(deviceAttributes);
         HidD_GetAttributes(handle, &deviceAttributes);
-        DEBUG_PRINT(("device attributes: vid=%d pid=%d\n", deviceAttributes.VendorID, deviceAttributes.ProductID));
+        DEBUG_PRINT(("device attributes: vid=%d pid=%d ver=%4.4X\n", deviceAttributes.VendorID, deviceAttributes.ProductID, deviceAttributes.VersionNumber));
         if(deviceAttributes.VendorID != vendor || deviceAttributes.ProductID != product)
             continue;   /* skip this device */
 

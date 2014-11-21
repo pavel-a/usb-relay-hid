@@ -1,13 +1,25 @@
 Command line utility for Chinese USB HID relays
 (USB 1.1 HID devices, VEN=5824 (0x16c0) DEV=1503 (0x05DF), based on the V-USB project)
 
-Rev. 1.1 (18-Nov-2014)
+Rev. 1.2 (20-Nov-2014)
 
 Usage:
-  usbrelay-cmd ON|OFF <num>   -- turn the relay ON or OFF
-  usbrelay-cmd STATE          -- print state of relays and the "unique ID"
+  usbrelay-cmd [ID=XXXXX] ON|OFF <num>   -- turn the relay ON or OFF
   
-  where <num> is the relay number: 1-2 or "*" for all
+      where <num> is the relay number: 1-2 or "*" for all
+
+  usbrelay-cmd STATE          -- print state of one relay device with its "unique ID"
+  usbrelay-cmd ENUM           -- print state of all devices and their "unique IDs"
+  
+Example:
+  usbrelay-cmd id=ABCDE on 1
+  
+Note: Parameter ID=XXXXX  specifies one relay device if several are connected.
+The ID string is case sensitive.
+The Enum command lists IDs of all connected devices. 
+
+Without the ID= parameter, if several devices are connected, the program uses any one of them.
+
 
 Each relay has two contact pairs: Normally Open and Normally Closed.
 The OFF state is the "normal" state, when the red LED is off, and the Normally Open contacts are disconnected.
@@ -16,7 +28,6 @@ The ON state is when the red LED is on, and the Normally Open contacts are conne
 Note: In the original s/w readme, "Open" means ON, "Close" means OFF.
   
 Currently tested with 1 and 2-relay devices.
-Finds the FIRST AVAILABLE RELAY device! Does not address by the "unique ID" yet!
 
 SOURCE based on a V-USB HID example.
 LICENSE: TBD!
