@@ -7,9 +7,6 @@
 #define USB_CFG_VENDOR_ID       0x16c0 /* 5824 = voti.nl */
 #define USB_CFG_DEVICE_ID       0x05DF /* obdev's shared PID for HIDs */
 
-
-typedef usbDevice_t *USBDEVHANDLE; /* I prefer handles to libusb 'opaque pointer' */
-
 #ifndef DEBUG_PRINT
 #if 0 //ifdef DEBUG
 #	define DEBUG_PRINT(arg)    printf arg

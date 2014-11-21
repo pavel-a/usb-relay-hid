@@ -1,4 +1,4 @@
-/* Name: hiddata.h
+/* Name: hiddata.h $$$$$$$$$$$$$$$$$$$$$$$$$
  * Author: Christian Starkjohann
  * Creation Date: 2008-04-11
  * Tabsize: 4
@@ -27,27 +27,39 @@ appropriate libraries in either case: "-lhid -lusb -lsetupapi" on Windows and
 
 /* ------------------------------------------------------------------------ */
 
+struct usbDevice;
 typedef struct usbDevice    usbDevice_t;
+typedef usbDevice_t        *USBDEVHANDLE;
+
 /* Opaque data type representing the USB device. This can be a Windows handle
  * or a libusb handle, depending on the backend implementation.
  */
 
 /* ------------------------------------------------------------------------ */
 
-int usbhidOpenDevice(usbDevice_t **device, int vendorID, char *vendorName, int productID, char *productName, int usesReportIDs);
-/* This function opens a USB device. 'vendorID' and 'productID' are the numeric
- * Vendor-ID and Product-ID of the device we want to open. If 'vendorName' and
- * 'productName' are both not NULL, only devices with matching manufacturer-
- * and product name strings are accepted. If the device uses report IDs,
- * 'usesReportIDs' must be set to a non-zero value.
- * Returns: If a matching device has been found, USBOPEN_SUCCESS is returned
- * and '*device' is set to an opaque pointer representing the device. The
- * device must be closed with usbhidCloseDevice(). If the device has not been
- * found or opening failed, an error code is returned.
+/* @func usbhidEnumDevices
+ * Enumerates USB HID devices, filtered by USB vendorID and productID.
+ * Each found device is opened and the callback will be called.
+ * The callback can probe the device and close it or keep open.
+ * If the callback returns 0, enumeration stops, else it goes on.
+ * @returns 0 if some devices were found or error code otherwise.
  */
-void    usbhidCloseDevice(usbDevice_t *device);
-/* Every device opened with usbhidOpenDevice() must be closed with this function.
+int usbhidEnumDevices(int vendorID, int productID, void *context,
+					  int (*usbhidEnumFunc)(USBDEVHANDLE usbh, void *ctx));
+
+/* 
+ * Close USB device handle opened with usbhidEnumDevices
  */
+void usbhidCloseDevice(USBDEVHANDLE usbh);
+
+/*
+ * Read HID vendor and product strings as ASCII null terminated strings
+ * Returns 0 on success, error code if error occured or the buffer is too short
+ * Any non-ascii characters in the strings will be replaced to '?'
+ */
+int usbhidGetVendorString(USBDEVHANDLE usbh, char *buffer, int len);
+int usbhidGetProductString(USBDEVHANDLE usbh, char *buffer, int len);
+
 int usbhidSetReport(usbDevice_t *device, char *buffer, int len);
 /* This function sends a feature report to the device. The report ID must be
  * in the first byte of buffer and the length 'len' of the report is specified
@@ -55,6 +67,7 @@ int usbhidSetReport(usbDevice_t *device, char *buffer, int len);
  * to 0 (dummy report ID).
  * Returns: 0 on success, an error code otherwise.
  */
+
 int usbhidGetReport(usbDevice_t *device, int reportID, char *buffer, int *len);
 /* This function obtains a feature report from the device. The requested
  * report-ID is passed in 'reportID'. The caller must pass a buffer of the size

@@ -6,8 +6,9 @@
  * License: GNU GPL v2 (see License.txt), GNU GPL v3 or proprietary (CommercialLicense.txt)
  */
 
-#include <stdio.h>
 #include "hiddata.h"
+#include <stdio.h>
+#include <string.h>
 
 #if 0 //ifdef DEBUG
 #define DEBUG_PRINT(arg)    printf arg
@@ -15,8 +16,11 @@
 #define DEBUG_PRINT(arg)
 #endif
 
+#define A_MAX_USB_STRING_LEN 126
+
+
 /* ######################################################################## */
-#if defined(_WIN32) /* ##################################################### */
+#if defined(_WIN32)
 /* ######################################################################## */
 
 #include "targetver.h"
@@ -30,30 +34,64 @@
 #pragma comment(lib, "hid")
 #endif /*_MSC_VER*/
 
-
-/* ------------------------------------------------------------------------ */
-
-static void convertUniToAscii(char *buffer)
+/* 
+ * Convert UTF-16 null term. string to single byte
+ * (ASCII or ISO Latin); change weird characters to "?"
+ */
+static void usbstring_to_ascii(wchar_t *wp, char *cp)
 {
-unsigned short  *uni = (void *)buffer;
-char            *ascii = buffer;
-
-    while(*uni != 0){
-        if(*uni >= 256){
-            *ascii++ = '?';
-        }else{
-            *ascii++ = (char)(*uni++);
-        }
-    }
-    *ascii++ = 0;
+	for(;;)
+	{
+		unsigned short h = *wp++;
+		*cp++ = (h < 0xFF) ? (char)h : '?';
+        if (h == 0)
+			break;
+	}
 }
 
-int usbhidOpenDevice(usbDevice_t **device, int vendor, char *vendorName, int product, char *productName, int usesReportIDs)
+/*
+ * Read HID string for vendor and device, return as ASCII (or ISO Latin...)
+ */
+int usbhidGetVendorString(USBDEVHANDLE usbh, char *buffer, int len)
 {
-	GUID                                hidGuid;        /* GUID for HID driver */
+	/* HidD_GetManufacturerString returns zero terminated UTF-16 string */
+	/* Error if buffer is too short */
+	if ( !HidD_GetManufacturerString((HANDLE)usbh, (void*)buffer, len ) ) {
+        DEBUG_PRINT(("error obtaining vendor name\n"));
+        return USBOPEN_ERR_IO;
+    }
+	usbstring_to_ascii((wchar_t*)buffer, buffer);
+	return 0;
+}
+
+int usbhidGetProductString(USBDEVHANDLE usbh, char *buffer, int len)
+{
+	/* HidD_GetProductString returns zero terminated UTF-16 string */
+	/* Error if buffer is too short */
+    if (!HidD_GetProductString((HANDLE)usbh, (void*)buffer, len ) ) {
+        DEBUG_PRINT(("error obtaining product name\n"));
+        return USBOPEN_ERR_IO;
+    }
+	usbstring_to_ascii((wchar_t*)buffer, buffer);
+	return 0;
+}
+
+/*
+ * Enumerate HID USB devices.
+ * In Windows this will find also non-USB devices, but assume that
+ * filtering by PID & VID is enough.
+ * Some HID devices (mice, kbd) are locked by Windows and cannot be opened.
+ * If we cannot open a device for R&W, we skip it without error.
+ * Assume our devices are not of types reserved by Windows.
+ */
+int usbhidEnumDevices(int vendor, int product,
+					  void *context,
+					  int (*usbhidEnumFunc)(USBDEVHANDLE usbh, void *ctx))
+{
+	GUID                                hidGuid;        /* GUID for HID class */
 	HDEVINFO                            deviceInfoList;
 	SP_DEVICE_INTERFACE_DATA            deviceInfo;
-	SP_DEVICE_INTERFACE_DETAIL_DATA     *deviceDetails = NULL;
+	SP_DEVICE_INTERFACE_DETAIL_DATA_W   *deviceDetails = NULL;
 	DWORD                               size;
 	int                                 i, openFlag = 0;  /* may be FILE_FLAG_OVERLAPPED */
 	int                                 errorCode = USBOPEN_ERR_NOTFOUND;
@@ -61,35 +99,34 @@ int usbhidOpenDevice(usbDevice_t **device, int vendor, char *vendorName, int pro
 	HIDD_ATTRIBUTES                     deviceAttributes;
 				
     HidD_GetHidGuid(&hidGuid);
-    deviceInfoList = SetupDiGetClassDevs(&hidGuid, NULL, NULL, DIGCF_PRESENT | DIGCF_INTERFACEDEVICE);
+    deviceInfoList = SetupDiGetClassDevsW(&hidGuid, NULL, NULL, DIGCF_PRESENT | DIGCF_INTERFACEDEVICE);
+	if (!deviceInfoList || deviceInfoList == INVALID_HANDLE_VALUE)
+	{
+		return USBOPEN_ERR_NOTFOUND;
+	}
+
     deviceInfo.cbSize = sizeof(deviceInfo);
-    for(i=0;;i++){
+    for (i=0; ; i++) {
         if(handle != INVALID_HANDLE_VALUE){
             CloseHandle(handle);
             handle = INVALID_HANDLE_VALUE;
         }
-        if(!SetupDiEnumDeviceInterfaces(deviceInfoList, 0, &hidGuid, i, &deviceInfo))
+        if( !SetupDiEnumDeviceInterfaces(deviceInfoList, 0, &hidGuid, i, &deviceInfo) )
             break;  /* no more entries */
         /* first do a dummy call just to determine the actual size required */
-        SetupDiGetDeviceInterfaceDetail(deviceInfoList, &deviceInfo, NULL, 0, &size, NULL);
+        SetupDiGetDeviceInterfaceDetailW(deviceInfoList, &deviceInfo, NULL, 0, &size, NULL);
         if(deviceDetails != NULL)
             free(deviceDetails);
         deviceDetails = malloc(size);
         deviceDetails->cbSize = sizeof(*deviceDetails);
         /* this call is for real: */
-        SetupDiGetDeviceInterfaceDetail(deviceInfoList, &deviceInfo, deviceDetails, size, &size, NULL);
+        SetupDiGetDeviceInterfaceDetailW(deviceInfoList, &deviceInfo, deviceDetails, size, &size, NULL);
         DEBUG_PRINT(("checking HID path \"%s\"\n", deviceDetails->DevicePath));
-#if 0
-        /* If we want to access a mouse or keyboard, we can only use feature
-         * requests as the device is locked by Windows. It must be opened
-         * with ACCESS_TYPE_NONE.
-         */
-        handle = CreateFile(deviceDetails->DevicePath, ACCESS_TYPE_NONE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, openFlag, NULL);
-#endif
-        /* attempt opening for R/W -- we don't care about devices which can't be accessed */
-        handle = CreateFile(deviceDetails->DevicePath, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING, openFlag, NULL);
+
+        handle = CreateFileW(deviceDetails->DevicePath, 
+			GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING, openFlag, NULL);
         if(handle == INVALID_HANDLE_VALUE){
-            DEBUG_PRINT(("opening failed: %d\n", (int)GetLastError()));
+            DEBUG_PRINT(("open USB device failed: gle=%d\n", (int)GetLastError()));
             /* errorCode = USBOPEN_ERR_ACCESS; opening will always fail for mouse -- ignore */
             continue;
         }
@@ -97,78 +134,56 @@ int usbhidOpenDevice(usbDevice_t **device, int vendor, char *vendorName, int pro
         HidD_GetAttributes(handle, &deviceAttributes);
         DEBUG_PRINT(("device attributes: vid=%d pid=%d\n", deviceAttributes.VendorID, deviceAttributes.ProductID));
         if(deviceAttributes.VendorID != vendor || deviceAttributes.ProductID != product)
-            continue;   /* ignore this device */
-        errorCode = USBOPEN_ERR_NOTFOUND;
-        if(vendorName != NULL && productName != NULL){
-            char    buffer[512];
-			memset(buffer, 0xFF, sizeof(buffer));
-            if(!HidD_GetManufacturerString(handle, buffer, sizeof(buffer))){
-                DEBUG_PRINT(("error obtaining vendor name\n"));
-                errorCode = USBOPEN_ERR_IO;
-                continue;
-            }
-            convertUniToAscii(buffer);
-            DEBUG_PRINT(("vendorName = \"%s\"\n", buffer));
-            if(strcmp(vendorName, buffer) != 0)
-                continue;
-			memset(buffer, 0xFF, sizeof(buffer));
-            if(!HidD_GetProductString(handle, buffer, sizeof(buffer))){
-                DEBUG_PRINT(("error obtaining product name\n"));
-                errorCode = USBOPEN_ERR_IO;
-                continue;
-            }
-            convertUniToAscii(buffer);
-            DEBUG_PRINT(("productName = \"%s\"\n", buffer));
-            if(strcmp(productName, buffer) != 0)
-                continue;
-        }
-        break;  /* we have found the device we are looking for! */
+            continue;   /* skip this device */
+
+        errorCode = 0;
+		if ( 0 == usbhidEnumFunc((USBDEVHANDLE)handle, context) )
+		{
+			break; /* stop enumeration */
+		}
+
+		/* Now the handle is owned by the callback */
+		handle = INVALID_HANDLE_VALUE;
     }
+
     SetupDiDestroyDeviceInfoList(deviceInfoList);
     if(deviceDetails != NULL)
         free(deviceDetails);
-    if(handle != INVALID_HANDLE_VALUE){
-        *device = (usbDevice_t *)handle;
-        errorCode = 0;
-    }
-    return errorCode;
+
+	return errorCode;
 }
 
-/* ------------------------------------------------------------------------ */
 
-void    usbhidCloseDevice(usbDevice_t *device)
+
+void usbhidCloseDevice(USBDEVHANDLE usbh)
 {
-    CloseHandle((HANDLE)device);
+    CloseHandle((HANDLE)usbh);
 }
 
-/* ------------------------------------------------------------------------ */
 
-int usbhidSetReport(usbDevice_t *device, char *buffer, int len)
+
+int usbhidSetReport(USBDEVHANDLE usbh, char *buffer, int len)
 {
-BOOLEAN rval;
-
-    rval = HidD_SetFeature((HANDLE)device, buffer, len);
+	BOOLEAN rval;
+    rval = HidD_SetFeature((HANDLE)usbh, buffer, len);
     return rval == 0 ? USBOPEN_ERR_IO : 0;
 }
 
-/* ------------------------------------------------------------------------ */
 
-int usbhidGetReport(usbDevice_t *device, int reportNumber, char *buffer, int *len)
+int usbhidGetReport(USBDEVHANDLE usbh, int reportNumber, char *buffer, int *len)
 {
-BOOLEAN rval = 0;
-
+    BOOLEAN rval = 0;
     buffer[0] = reportNumber;
-    rval = HidD_GetFeature((HANDLE)device, buffer, *len);
+    rval = HidD_GetFeature((HANDLE)usbh, buffer, *len);
     return rval == 0 ? USBOPEN_ERR_IO : 0;
 }
 
-/* ------------------------------------------------------------------------ */
+
 
 /* ######################################################################## */
 #else /* defined WIN32 #################################################### */
 /* ######################################################################## */
 
-#include <string.h>
 #include <usb.h>
 
 #define usbDevice   usb_dev_handle  /* use libusb's device structure */
@@ -181,7 +196,7 @@ BOOLEAN rval = 0;
 #define USB_HID_REPORT_TYPE_FEATURE 3
 
 
-static int  usesReportIDs;
+static int  usesReportIDs = 0; /* 1 => 1st byte of get/set report buffer is report ID */
 
 /* ------------------------------------------------------------------------- */
 
@@ -328,5 +343,5 @@ int bytesReceived, maxLen = *len;
 }
 
 /* ######################################################################## */
-#endif /* defined WIN32 ################################################### */
+#endif /* WIN32 */
 /* ######################################################################## */
