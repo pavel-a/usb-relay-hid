@@ -45,7 +45,7 @@ typedef usbDevice_t        *USBDEVHANDLE;
  * @returns 0 if some devices were found or error code otherwise.
  */
 int usbhidEnumDevices(int vendorID, int productID, void *context,
-					  int (*usbhidEnumFunc)(USBDEVHANDLE usbh, void *ctx));
+                      int (*usbhidEnumFunc)(USBDEVHANDLE usbh, void *ctx));
 
 /* 
  * Close USB device handle opened with usbhidEnumDevices

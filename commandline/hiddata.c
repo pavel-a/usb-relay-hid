@@ -34,19 +34,20 @@
 #pragma comment(lib, "hid")
 #endif /*_MSC_VER*/
 
-/* 
- * Convert UTF-16 null term. string to single byte
- * (ASCII or ISO Latin); change weird characters to "?"
+/*
+ * Convert UTF-16 null term. string to single byte (ASCII or ISO Latin)
+ * change all weird characters to "?"
  */
-static void usbstring_to_ascii(wchar_t *wp, char *cp)
+static void usbstring_to_ascii(unsigned short *wp, char *cp, int size)
 {
-	for(;;)
-	{
-		unsigned short h = *wp++;
-		*cp++ = (h < 0xFF) ? (char)h : '?';
+    unsigned short *wpend = wp + (size/sizeof(unsigned short));
+    for( ; wp < wpend; )
+    {
+        unsigned short h = *wp++;
+        *cp++ = (h < 0xFF) ? (char)h : '?';
         if (h == 0)
-			break;
-	}
+            break;
+    }
 }
 
 /*
@@ -54,26 +55,26 @@ static void usbstring_to_ascii(wchar_t *wp, char *cp)
  */
 int usbhidGetVendorString(USBDEVHANDLE usbh, char *buffer, int len)
 {
-	/* HidD_GetManufacturerString returns zero terminated UTF-16 string */
-	/* Error if buffer is too short */
-	if ( !HidD_GetManufacturerString((HANDLE)usbh, (void*)buffer, len ) ) {
+    /* HidD_GetManufacturerString returns zero terminated UTF-16 string */
+    /* Error if buffer is too short */
+    if ( !HidD_GetManufacturerString((HANDLE)usbh, (void*)buffer, len ) ) {
         DEBUG_PRINT(("error obtaining vendor name\n"));
         return USBOPEN_ERR_IO;
     }
-	usbstring_to_ascii((wchar_t*)buffer, buffer);
-	return 0;
+    usbstring_to_ascii((UINT16*)buffer, buffer, len);
+    return 0;
 }
 
 int usbhidGetProductString(USBDEVHANDLE usbh, char *buffer, int len)
 {
-	/* HidD_GetProductString returns zero terminated UTF-16 string */
-	/* Error if buffer is too short */
+    /* HidD_GetProductString returns zero terminated UTF-16 string */
+    /* Error if buffer is too short */
     if (!HidD_GetProductString((HANDLE)usbh, (void*)buffer, len ) ) {
         DEBUG_PRINT(("error obtaining product name\n"));
         return USBOPEN_ERR_IO;
     }
-	usbstring_to_ascii((wchar_t*)buffer, buffer);
-	return 0;
+    usbstring_to_ascii((UINT16*)buffer, buffer, len);
+    return 0;
 }
 
 /*
@@ -85,25 +86,25 @@ int usbhidGetProductString(USBDEVHANDLE usbh, char *buffer, int len)
  * Assume our devices are not of types reserved by Windows.
  */
 int usbhidEnumDevices(int vendor, int product,
-					  void *context,
-					  int (*usbhidEnumFunc)(USBDEVHANDLE usbh, void *ctx))
+                      void *context,
+                      int (*usbhidEnumFunc)(USBDEVHANDLE usbh, void *ctx))
 {
-	GUID                                hidGuid;        /* GUID for HID class */
-	HDEVINFO                            deviceInfoList;
-	SP_DEVICE_INTERFACE_DATA            deviceInfo;
-	SP_DEVICE_INTERFACE_DETAIL_DATA_W   *deviceDetails = NULL;
-	DWORD                               size;
-	int                                 i, openFlag = 0;  /* may be FILE_FLAG_OVERLAPPED */
-	int                                 errorCode = USBOPEN_ERR_NOTFOUND;
-	HANDLE                              handle = INVALID_HANDLE_VALUE;
-	HIDD_ATTRIBUTES                     deviceAttributes;
-				
+    GUID                                hidGuid;        /* GUID for HID class */
+    HDEVINFO                            deviceInfoList;
+    SP_DEVICE_INTERFACE_DATA            deviceInfo;
+    SP_DEVICE_INTERFACE_DETAIL_DATA_W   *deviceDetails = NULL;
+    DWORD                               size;
+    int                                 i, openFlag = 0;  /* may be FILE_FLAG_OVERLAPPED */
+    int                                 errorCode = USBOPEN_ERR_NOTFOUND;
+    HANDLE                              handle = INVALID_HANDLE_VALUE;
+    HIDD_ATTRIBUTES                     deviceAttributes;
+                
     HidD_GetHidGuid(&hidGuid);
     deviceInfoList = SetupDiGetClassDevsW(&hidGuid, NULL, NULL, DIGCF_PRESENT | DIGCF_INTERFACEDEVICE);
-	if (!deviceInfoList || deviceInfoList == INVALID_HANDLE_VALUE)
-	{
-		return USBOPEN_ERR_NOTFOUND;
-	}
+    if (!deviceInfoList || deviceInfoList == INVALID_HANDLE_VALUE)
+    {
+        return USBOPEN_ERR_NOTFOUND;
+    }
 
     deviceInfo.cbSize = sizeof(deviceInfo);
     for (i=0; ; i++) {
@@ -124,7 +125,7 @@ int usbhidEnumDevices(int vendor, int product,
         DEBUG_PRINT(("checking HID path \"%s\"\n", deviceDetails->DevicePath));
 
         handle = CreateFileW(deviceDetails->DevicePath, 
-			GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING, openFlag, NULL);
+            GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING, openFlag, NULL);
         if(handle == INVALID_HANDLE_VALUE){
             DEBUG_PRINT(("open USB device failed: gle=%d\n", (int)GetLastError()));
             /* errorCode = USBOPEN_ERR_ACCESS; opening will always fail for mouse -- ignore */
@@ -137,20 +138,20 @@ int usbhidEnumDevices(int vendor, int product,
             continue;   /* skip this device */
 
         errorCode = 0;
-		if ( 0 == usbhidEnumFunc((USBDEVHANDLE)handle, context) )
-		{
-			break; /* stop enumeration */
-		}
+        if ( 0 == usbhidEnumFunc((USBDEVHANDLE)handle, context) )
+        {
+            break; /* stop enumeration */
+        }
 
-		/* Now the handle is owned by the callback */
-		handle = INVALID_HANDLE_VALUE;
+        /* Now the handle is owned by the callback */
+        handle = INVALID_HANDLE_VALUE;
     }
 
     SetupDiDestroyDeviceInfoList(deviceInfoList);
     if(deviceDetails != NULL)
         free(deviceDetails);
 
-	return errorCode;
+    return errorCode;
 }
 
 
@@ -164,7 +165,7 @@ void usbhidCloseDevice(USBDEVHANDLE usbh)
 
 int usbhidSetReport(USBDEVHANDLE usbh, char *buffer, int len)
 {
-	BOOLEAN rval;
+    BOOLEAN rval;
     rval = HidD_SetFeature((HANDLE)usbh, buffer, len);
     return rval == 0 ? USBOPEN_ERR_IO : 0;
 }
