@@ -6,6 +6,10 @@
 *.sln eol=crlf
 *.vcproj eol=crlf
 *.vcxproj* eol=crlf
+*.cmd eol=crlf
+*.bat eol=crlf
 *.txt eol=crlf
 *.c eol=lf
 *.h eol=lf
+Makefile eol=auto
+*.mak eol=auto
