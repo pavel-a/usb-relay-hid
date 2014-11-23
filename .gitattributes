@@ -1,5 +1,6 @@
 .gitattributes export-ignore
 .gitignore export-ignore
+* text=auto
 *.sh eol=lf
 *.ac eol=lf
 *.am eol=lf
@@ -11,5 +12,3 @@
 *.txt eol=crlf
 *.c eol=lf
 *.h eol=lf
-Makefile eol=auto
-*.mak eol=auto
