@@ -220,7 +220,7 @@ static int rel_read_status_raw(USBDEVHANDLE dev, void *raw_data)
     }
 
     if ( len != 9 || buffer[0] != reportnum ) {
-        fprintf(stderr, "ERROR: wrong HID report returned!\n", len);
+        fprintf(stderr, "ERROR: wrong HID report returned! %d\n", len);
         return -2;
     }
 
@@ -239,7 +239,7 @@ static int rel_onoff( USBDEVHANDLE dev, int is_on, char const *numstr )
     int err = -1;
     int relaynum = numstr ? atoi(numstr) : 0;
     
-    if ( numstr && (0 == strcmp(numstr,"*")) ) {
+    if ( numstr && (0 == strcasecmp(numstr,"all")) ) {
         char x[2] = {'1', 0};
         int i;
         for (i = 1; i <= g_max_relay_num; i++) {
@@ -251,7 +251,7 @@ static int rel_onoff( USBDEVHANDLE dev, int is_on, char const *numstr )
     }
 
     if ( relaynum <= 0 || relaynum > g_max_relay_num ) {
-        fprintf(stderr, "Invalid relay number. Must be 1-%d or * (all)\n", g_max_relay_num);
+        fprintf(stderr, "Invalid relay number. Must be 1-%d or ALL)\n", g_max_relay_num);
         return 1;
     }
 
@@ -259,7 +259,7 @@ static int rel_onoff( USBDEVHANDLE dev, int is_on, char const *numstr )
     buffer[0] = 0; /* report # */
     buffer[1] = is_on ? 0xFF : 0xFD;
     buffer[2] = (unsigned char)relaynum;
-    if((err = usbhidSetReport(dev, buffer, 9)) != 0) {  
+    if((err = usbhidSetReport(dev, (void*)buffer, 9)) != 0) {
         fprintf(stderr, "Error writing data: %s\n", usbErrorMessage(err));
         return 1;
     }

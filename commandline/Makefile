@@ -1,4 +1,4 @@
-# Makefile for HID USB relay utility, usbrelay-cmd
+# Makefile for HID USB relay utility, hidusbrelay-cmd
 # pa01 16-apr-2014
 #
 # prototype:
@@ -9,7 +9,10 @@
 # License: GNU GPL v2 (see License.txt), GNU GPL v3 or proprietary (CommercialLicense.txt)
 
 
+CMD_UTILITY=hidusb-relay-cmd
+
 # For Unix/Linux, Mac OS X:
+# Using old  simple version of libusb
 USBFLAGS=   `libusb-config --cflags`
 USBLIBS=    `libusb-config --libs`
 EXE_SUFFIX=
@@ -23,11 +26,12 @@ EXE_SUFFIX=
 #USBFLAGS+=-I/usr/include
 
 CC=		gcc
-CFLAGS=		-O -Wall $(USBFLAGS)
+DEBUGFLAGS=
+CFLAGS=		-O -Wall $(USBFLAGS) $(DEBUGFLAGS)
 LIBS=		$(USBLIBS)
 
 OBJ=		usbrelay-cmd.o hiddata.o
-PROGRAM=	usbrelay-cmd$(EXE_SUFFIX)
+PROGRAM=	$(CMD_UTILITY)$(EXE_SUFFIX)
 
 all: $(PROGRAM)
 

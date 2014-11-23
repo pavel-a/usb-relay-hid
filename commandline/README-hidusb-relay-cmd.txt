@@ -1,50 +1,63 @@
 Command line utility for Chinese USB HID relays
 (USB 1.1 HID devices, VEN=5824 (0x16c0) DEV=1503 (0x05DF), based on the V-USB project)
 
-Rev. 1.2 (20-Nov-2014)
+Rev. 1.2 (22-Nov-2014)
 
 Usage:
   usbrelay-cmd [ID=XXXXX] ON|OFF <num>   -- turn the relay ON or OFF
   
-      where <num> is the relay number: 1-2 or "*" for all
+      where <num> is the relay number: 1-2 or "ALL"
 
-  usbrelay-cmd STATE          -- print state of one relay device with its "unique ID"
+  usbrelay-cmd STATUS         -- print state of one relay device with its "unique ID"
   usbrelay-cmd ENUM           -- print state of all devices and their "unique IDs"
   
-Example:
-  usbrelay-cmd id=ABCDE on 1
-  
-Note: Parameter ID=XXXXX  specifies one relay device if several are connected.
-The ID string is case sensitive.
-The Enum command lists IDs of all connected devices. 
-
+Parameter ID=XXXXX  specifies one relay device if several are connected.
 Without the ID= parameter, if several devices are connected, the program uses any one of them.
+The ID string is case sensitive.
 
+Examples:
+
+  usbrelay-cmd id=ABCDE on 1
+  usbrelay-cmd id=ABCDE OFF ALL
+  usbrelay-cmd id=ABCDE STATUS
+
+  usbrelay-cmd ON ALL  -- uses first found relay device
+  usbrelay-cmd STATUS  -- uses first found relay device
+  
+
+REMARKS
+
+The Enum command lists the IDs of all available relay devices.
+The ID strings are case sensitive and should be exactly as output by the "enum" command.
 
 Each relay has two contact pairs: Normally Open and Normally Closed.
 The OFF state is the "normal" state, when the red LED is off, and the Normally Open contacts are disconnected.
 The ON state is when the red LED is on, and the Normally Open contacts are connected.
 
 Note: In the original s/w readme, "Open" means ON, "Close" means OFF.
-  
-Currently tested with 1 and 2-relay devices.
+
+This program has been tested with 1- and 2-relay devices.
+
+On Linux, this program requires root access by default!
+To grant access to non-root users, define udev rule for the devices:
+Example:
+   SUBSYSTEMS=="usb", ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="05df", MODE:="0666" 
+
+
+BUILDING
+
+For Windows XP and later:
+ - Using the in-box hid.dll
+ - Build with VC++ 2008 and WDK 7.1, or newer VC++ with the suitable WDK
+ 
+For Linux (PC, x86):
+ - using the old libusb (v. 0.1; usb.h)
+ - tested on Centos 5, Ubuntu 12.04, Mint
 
 SOURCE based on a V-USB HID example.
 LICENSE: TBD!
          Should be non-GPL; rewrite all prototype code!
 
-
-For Windows XP and later:
- - using the in-box hid.dll and WDK 7.1.
- - build with VC++ 2008
-
-For Linux (PC, x86):
- - using the old libusb (v 0.1; usb.h)
- - tested on Centos 5, Ubuntu 12.04
- - requires root!
-   To grant access to users, define udev rule for this device (or all HID). Example:
-   SUBSYSTEMS=="usb", ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="05df", MODE:="0666" 
- 
 >>> Target for 1st public release:
 ================================
 1. Remove GPL encumberment
@@ -52,11 +65,6 @@ For Linux (PC, x86):
 
 Other TODO's
 ============
-TODO: support multiple devices, support other existing variants
-  usbrelay-cmd -ID=XXXXX ON|OFF <num>
-  usbrelay-cmd -ID=XXXXX  STATE       
-    or -s XXXXX or --SN 
-    -ID=* --ANY any one?
     
  *** Check that these devices indeed have unique IDs!
   The orig. h file mentions  function:   usb_relay_device_set_serial(int hHandle, char serial[5]);
