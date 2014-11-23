@@ -1,5 +1,5 @@
 # Makefile for HID USB relay utility, hidusbrelay-cmd
-# pa01 16-apr-2014
+# pa02 22-nov-2014
 #
 # prototype:
 # Author: Christian Starkjohann
