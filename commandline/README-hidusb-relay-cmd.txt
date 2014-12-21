@@ -48,7 +48,7 @@ BUILDING
 
 For Windows XP and later:
  - Using the in-box hid.dll
- - Build with VC++ 2008 and WDK 7.1, or newer VC++ with the suitable WDK
+ - Build with VC++ 2008 and WDK 7.1, or VC++ 2013 "community edition" with WDK 8.1
  
 For Linux (PC, x86):
  - using the old libusb (v. 0.1; usb.h)
