@@ -8,7 +8,7 @@ The goal of this little project is to provide open-source API for low-cost USB H
 
 The big advantage of HID-based interface is that no kernel drivers and no simulated COM-ports are needed. It is easy to detect and address the connected devices.
 
-Unfortunatey, the vendors currently offer only API library for Windows, and only in binary form.
+The vendors currently offer only an API library for Windows, and only in binary form.
 
 We are not associated with the manufacturer(s) of these devices or author(s) of the original software offered by eBay sellers.
 Our intent is to make this device usable on Linux (and any other OS that supports libusb) as well as on 64-bit Windows.
