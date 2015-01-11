@@ -4,6 +4,7 @@
 *.sh eol=lf
 *.ac eol=lf
 *.am eol=lf
+*akefile eol=lf
 *.sln eol=crlf
 *.vcproj eol=crlf
 *.vcxproj* eol=crlf
