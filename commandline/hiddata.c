@@ -33,6 +33,8 @@
 #ifdef _MSC_VER
 #pragma comment(lib, "setupapi")
 #pragma comment(lib, "hid")
+
+#define snprintf   _snprintf
 #endif /*_MSC_VER*/
 
 /*
@@ -60,7 +62,7 @@ int usbhidGetVendorString(USBDEVHANDLE usbh, char *buffer, int len)
     /* Error if buffer is too short */
     if ( !HidD_GetManufacturerString((HANDLE)usbh, (void*)buffer, len ) ) {
         DEBUG_PRINT(("error obtaining vendor name\n"));
-        return USBOPEN_ERR_IO;
+        return USBHID_ERR_IO_HID;
     }
     usbstring_to_ascii((UINT16*)buffer, buffer, len);
     return 0;
@@ -72,7 +74,7 @@ int usbhidGetProductString(USBDEVHANDLE usbh, char *buffer, int len)
     /* Error if buffer is too short */
     if (!HidD_GetProductString((HANDLE)usbh, (void*)buffer, len ) ) {
         DEBUG_PRINT(("error obtaining product name\n"));
-        return USBOPEN_ERR_IO;
+        return USBHID_ERR_IO_HID;
     }
     usbstring_to_ascii((UINT16*)buffer, buffer, len);
     return 0;
@@ -96,7 +98,7 @@ int usbhidEnumDevices(int vendor, int product,
     SP_DEVICE_INTERFACE_DETAIL_DATA_W   *deviceDetails = NULL;
     DWORD                               size;
     int                                 i, openFlag = 0;  /* may be FILE_FLAG_OVERLAPPED */
-    int                                 errorCode = USBOPEN_ERR_NOTFOUND;
+    int                                 errorCode = USBHID_ERR_NOTFOUND;
     HANDLE                              handle = INVALID_HANDLE_VALUE;
     HIDD_ATTRIBUTES                     deviceAttributes;
                 
@@ -104,7 +106,7 @@ int usbhidEnumDevices(int vendor, int product,
     deviceInfoList = SetupDiGetClassDevsW(&hidGuid, NULL, NULL, DIGCF_PRESENT | DIGCF_INTERFACEDEVICE);
     if (!deviceInfoList || deviceInfoList == INVALID_HANDLE_VALUE)
     {
-        return USBOPEN_ERR_NOTFOUND;
+        return USBHID_ERR_NOTFOUND;
     }
 
     deviceInfo.cbSize = sizeof(deviceInfo);
@@ -166,7 +168,7 @@ int usbhidSetReport(USBDEVHANDLE usbh, char *buffer, int len)
 {
     BOOLEAN rval;
     rval = HidD_SetFeature((HANDLE)usbh, buffer, len);
-    return rval == 0 ? USBOPEN_ERR_IO : 0;
+    return rval == 0 ? USBHID_ERR_IO_HID : 0;
 }
 
 
@@ -175,7 +177,7 @@ int usbhidGetReport(USBDEVHANDLE usbh, int reportNumber, char *buffer, int *len)
     BOOLEAN rval = 0;
     buffer[0] = reportNumber;
     rval = HidD_GetFeature((HANDLE)usbh, buffer, *len);
-    return rval == 0 ? USBOPEN_ERR_IO : 0;
+    return rval == 0 ? USBHID_ERR_IO_HID : 0;
 }
 
 
@@ -368,3 +370,18 @@ void usbhidSetUsesReportId(USBDEVHANDLE usbh)
 /* ######################################################################## */
 #endif /* WIN32 */
 /* ######################################################################## */
+
+int usbhidStrerror_r( int err, char *buf, int len)
+{
+    const char *s;
+    switch (err) {
+        case USBHID_ERR_ACCESS:      s = "Access to device denied";
+        case USBHID_ERR_NOTFOUND:    s = "The specified device was not found";
+        case USBHID_ERR_IO:          s = "Communication error with device";
+        case USBHID_ERR_IO_HID:      s = "HID I/O error with device";
+        default:
+            s = "";
+    }
+  
+    return snprintf(buf, len, "%s", s);
+}
