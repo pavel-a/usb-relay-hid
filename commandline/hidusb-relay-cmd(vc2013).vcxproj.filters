@@ -26,7 +26,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="hiddata.c">
+    <ClCompile Include="hiddata_mswin.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="usbrelay-cmd.c">
