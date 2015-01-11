@@ -11,26 +11,28 @@
 
 CMD_UTILITY=hidusb-relay-cmd
 
-# For Unix/Linux, Mac OS X:
-# Using old  simple version of libusb
+# For Unix/Linux :
+# Using old simple version 0.1 of libusb
 USBFLAGS=   `libusb-config --cflags`
 USBLIBS=    `libusb-config --libs`
 EXE_SUFFIX=
 
 # Use the following 3 lines on Windows and comment out the 3 above:
 #USBFLAGS=
-#USBLIBS=    -lhid -lusb -lsetupapi
+#USBLIBS=    -lhid -lsetupapi
 #EXE_SUFFIX= .exe
 
-#+pa GCC on my ubuntu won't pick this dir by default ?!
+#+pa GCC on my ubuntu 12 won't pick this dir by default ?!
 #USBFLAGS+=-I/usr/include
+
+HIDDATA=hiddata_libusb01
 
 CC=		gcc
 DEBUGFLAGS=
 CFLAGS=		-O -Wall $(USBFLAGS) $(DEBUGFLAGS)
 LIBS=		$(USBLIBS)
 
-OBJ=		usbrelay-cmd.o hiddata.o
+OBJ=		usbrelay-cmd.o $(HIDDATA).o
 PROGRAM=	$(CMD_UTILITY)$(EXE_SUFFIX)
 
 all: $(PROGRAM)

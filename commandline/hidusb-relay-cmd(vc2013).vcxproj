@@ -156,7 +156,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="hiddata.c" />
+    <ClCompile Include="hiddata_mswin.c" />
     <ClCompile Include="usbrelay-cmd.c" />
   </ItemGroup>
   <ItemGroup>
