@@ -1,23 +1,25 @@
 How to use USB_RELAY_DEVICE DLL
+===============================
 
 Version 1.0
 
 Changes to the original DLL:
-============================
+----------------------------
  - Type used for handles changed from int to intptr_t, for 64-bit compatibility.
    This should be binary compatible with existing 32-bit clients. 
 
 
 Windows, Visual C++ applications
-================================
+---------------------------------
 
 Include file name: usb_relay_device.h
 Library file name: usb_relay_device.lib
 
 Put the following lines in your source file:
 
-   #include <usb_relay_device.h>
-   #pragma comment(lib, "usb_relay_device.lib")
+   `#include <usb_relay_device.h>`
+
+   `#pragma comment(lib, "usb_relay_device.lib")`
 
 The file usb_relay_device.dll must be installed with your application.
 Use either 32-bit or 64-bit DLL, matching your application.
@@ -86,14 +88,14 @@ Notes
 
   
 Managed .NET applications (C#, VB.NET)
-======================================
+---------------------------------------
 TBD
 
 Python (CPython)
-================
+-------------------
 TBD
 
 GCC or MinGW applications
-=========================
+--------------------------
 TBD
 
