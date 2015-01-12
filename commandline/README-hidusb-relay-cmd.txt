@@ -46,45 +46,14 @@ Example:
 
 BUILDING
 
-For Windows XP and later:
- - Using the in-box hid.dll
- - Build with VC++ 2008 and WDK 7.1, or VC++ 2013 "community edition" with WDK 8.1
+For Windows XP and newer:
+ - Build with VC++ 2008 with WDK 7.1, or VC++ 2013 "community edition" with WDK 8.1
  
 For Linux (PC, x86):
  - using the old libusb (v. 0.1; usb.h)
  - tested on Centos 5, Ubuntu 12.04, Mint
 
-SOURCE based on a V-USB HID example.
-LICENSE: TBD!
-         Should be non-GPL; rewrite all prototype code!
-
->>> Target for 1st public release:
-================================
-1. Remove GPL encumberment
-2. Make a .so for Linux (Windows already has orig DLL)
-
-Other TODO's
-============
-    
- *** Check that these devices indeed have unique IDs!
-  The orig. h file mentions  function:   usb_relay_device_set_serial(int hHandle, char serial[5]);
-  which may be used by mfg to burn the ID? but the orig. DLL does not export it.
-  In detection code (find by "unique ID"), check only by product name, Ignore vendor string?
-
-TODO: Make a .so callable from Java, Python etc.
-      For this, move to libusb 1.x (libusb.h)? 
-TODO: provide the original API "usb_relay_device.h" API, compatible with the orig. usb_relay_device.dll
-      The orig .h file and example are in orig dir (slightly adapted and updated to VC2008)  
-     In orig .h file relay state "open" means ON (the red LED is on). "Close" means OFF (the red LED is off)
+For OS X 10.9:
+ - build with Xcode and IOKit framewrork
+ 
 ~~
-
-Uses code by:
-Copyright: (c) 2008 by OBJECTIVE DEVELOPMENT Software GmbH 
-Author: Christian Starkjohann
-Creation Date: 2008-04-11
-
-~~
-The relay device ID - from HID attributes:
-vendorName = "www.dcttech.com" -> this site does not exist (squatted)
-productName = "USBRelayN" where N=1|2|4
-
