@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		E91AC6D01A5B4717009E1022 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E91AC6CF1A5B4717009E1022 /* IOKit.framework */; };
-		E9BA23AE1A60A5DF00AC9E85 /* hiddata-OSX.c in Sources */ = {isa = PBXBuildFile; fileRef = E9BA23AD1A60A5DF00AC9E85 /* hiddata-OSX.c */; };
+		E9BA23AE1A60A5DF00AC9E85 /* hiddata-OSX.c in Sources */ = {isa = PBXBuildFile; fileRef = E9BA23AD1A60A5DF00AC9E85 /* hiddata_osx.c */; };
 		E9CBC75F1A5F4DE0008CEC54 /* usbrelay-cmd.c in Sources */ = {isa = PBXBuildFile; fileRef = E9CBC75E1A5F4DE0008CEC54 /* usbrelay-cmd.c */; };
 /* End PBXBuildFile section */
 
@@ -27,7 +27,7 @@
 /* Begin PBXFileReference section */
 		E91AC6CF1A5B4717009E1022 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/System/Library/Frameworks/IOKit.framework; sourceTree = DEVELOPER_DIR; };
 		E99FE4AD1A5981FD00F14CF4 /* hidusb-relay-cmd */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "hidusb-relay-cmd"; sourceTree = BUILT_PRODUCTS_DIR; };
-		E9BA23AD1A60A5DF00AC9E85 /* hiddata-OSX.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "hiddata-OSX.c"; sourceTree = "<group>"; };
+		E9BA23AD1A60A5DF00AC9E85 /* hiddata_OSX.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "hiddata_osx.c"; sourceTree = "<group>"; };
 		E9CBC75E1A5F4DE0008CEC54 /* usbrelay-cmd.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "usbrelay-cmd.c"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -46,7 +46,7 @@
 		E99FE4A41A5981FD00F14CF4 = {
 			isa = PBXGroup;
 			children = (
-				E9BA23AD1A60A5DF00AC9E85 /* hiddata-OSX.c */,
+				E9BA23AD1A60A5DF00AC9E85 /* hiddata_OSX.c */,
 				E9CBC75E1A5F4DE0008CEC54 /* usbrelay-cmd.c */,
 				E91AC6CF1A5B4717009E1022 /* IOKit.framework */,
 				E99FE4AE1A5981FD00F14CF4 /* Products */,
@@ -117,7 +117,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E9BA23AE1A60A5DF00AC9E85 /* hiddata-OSX.c in Sources */,
+				E9BA23AE1A60A5DF00AC9E85 /* hiddata_OSX.c in Sources */,
 				E9CBC75F1A5F4DE0008CEC54 /* usbrelay-cmd.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
