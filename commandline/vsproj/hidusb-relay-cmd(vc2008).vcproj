@@ -111,7 +111,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="\winddk\7.1.0\inc\crt;\winddk\7.1.0\inc\api"
+				AdditionalIncludeDirectories="..;\winddk\7.1.0\inc\crt;\winddk\7.1.0\inc\api"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS=1"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
@@ -130,7 +130,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="D:\winddk\7.1.0\lib\wxp\i386"
+				AdditionalLibraryDirectories="..;D:\winddk\7.1.0\lib\wxp\i386"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -169,15 +169,15 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\hiddata.h"
+				RelativePath="..\hiddata.h"
 				>
 			</File>
 			<File
-				RelativePath=".\hidusb-tool.h"
+				RelativePath="..\hidusb-tool.h"
 				>
 			</File>
 			<File
-				RelativePath=".\targetver.h"
+				RelativePath="..\targetver.h"
 				>
 			</File>
 		</Filter>
@@ -193,16 +193,16 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\hiddata_mswin.c"
+				RelativePath="..\hiddata_mswin.c"
 				>
 			</File>
 			<File
-				RelativePath=".\usbrelay-cmd.c"
+				RelativePath="..\usbrelay-cmd.c"
 				>
 			</File>
 		</Filter>
 		<File
-			RelativePath=".\README-hidusb-relay-cmd.txt"
+			RelativePath="..\README-hidusb-relay-cmd.txt"
 			>
 		</File>
 	</Files>
