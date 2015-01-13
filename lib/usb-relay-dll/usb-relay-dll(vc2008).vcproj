@@ -41,6 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="../../commandline;..;\winddk\7.1.0\inc\crt;\winddk\7.1.0\inc\api"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;USBRELAYDLL_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -118,8 +119,9 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories="../../commandline;..;\winddk\7.1.0\inc\crt;\winddk\7.1.0\inc\api"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;USBRELAYDLL_EXPORTS"
-				RuntimeLibrary="2"
+				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -137,7 +139,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)\$(OutDir)\USB_RELAY_DEVICE.dll"
+				OutputFile="$(OutDir)\USB_RELAY_DEVICE.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="D:\winddk\7.1.0\lib\wxp\i386"
 				ModuleDefinitionFile="usb_relay_dll.def"
@@ -183,11 +185,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\commandline\hiddata_mswin.c"
+				>
+			</File>
+			<File
 				RelativePath=".\usb_relay_dll.def"
 				>
 			</File>
 			<File
-				RelativePath=".\usb_relay_lib_win32.c"
+				RelativePath="..\usb_relay_lib.c"
 				>
 			</File>
 		</Filter>
@@ -196,10 +202,6 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-			<File
-				RelativePath=".\stdafx.h"
-				>
-			</File>
 			<File
 				RelativePath=".\targetver.h"
 				>

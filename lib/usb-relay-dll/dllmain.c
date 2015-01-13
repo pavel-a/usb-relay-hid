@@ -1,6 +1,8 @@
-// dllmain.cpp : Defines the entry point for the DLL
+// dllmain.c : Defines the entry point for the DLL
 
-#include "stdafx.h"
+#include "targetver.h"
+#define WIN32_EXTRALEAN             // Exclude rarely-used stuff from Windows headers
+#include <windows.h>
 
 BOOL APIENTRY DllMain( HMODULE hModule,
                        DWORD  ul_reason_for_call,
@@ -10,6 +12,8 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
+		DisableThreadLibraryCalls(hModule);
+		break;
     case DLL_THREAD_ATTACH:
     case DLL_THREAD_DETACH:
     case DLL_PROCESS_DETACH:
