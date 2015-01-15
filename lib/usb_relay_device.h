@@ -4,23 +4,29 @@
 #define USBRELAY_LIB_VER 0x02
 
 #ifdef WIN32
+#ifdef _MSC_VER /* Microsoft compiler: */
+#
 #ifndef USBRL_CALL
-#  define USBRL_CALL _cdecl
+#  define USBRL_CALL __cdecl
 #endif
 #ifndef USBRL_API
 #  define USBRL_API __declspec(dllimport) USBRL_CALL
+#  pragma comment(lib, "usb_relay_device")
 #endif
 #
-#else /* !WIN32 */
-#
+#else /* Windows & Not Microsoft's compiler */
+#  define USBRL_CALL
+#  define USBRL_API USBRL_CALL
+#endif /* Windows & Not Microsoft's compiler */
+#endif /* WIN32 */
+
 #ifndef USBRL_CALL
 #  define USBRL_CALL
 #endif
 #ifndef USBRL_API
 #  define USBRL_API USBRL_CALL
 #endif
-#
-#endif /* WIN32 */
+
 
 #include <stddef.h>
 
@@ -29,11 +35,11 @@ enum usb_relay_device_type
     USB_RELAY_DEVICE_ONE_CHANNEL   = 1,
     USB_RELAY_DEVICE_TWO_CHANNEL   = 2,
     USB_RELAY_DEVICE_FOUR_CHANNEL  = 4,
-    USB_RELAY_DEVICE_EIGHT_CHANNEL = 8	
+    USB_RELAY_DEVICE_EIGHT_CHANNEL = 8
 };
 
 
-/** USB relay board info structure*/
+/** USB relay board info structure */
 struct usb_relay_device_info
 {
     char *serial_number;
@@ -60,11 +66,13 @@ It should be called at the end of execution to avoid memory leaks.
 */
 int USBRL_API usb_relay_exit(void);
 
-/** Enumerate the USB Relay Devices.*/
+/** Enumerate the USB Relay Devices.
+@return Pointer to list of usb_relay_device_info
+        Caller should free it with usb_relay_device_free_enumerate
+*/
 pusb_relay_device_info_t USBRL_API usb_relay_device_enumerate(void);
 
-
-/** Free an enumeration Linked List*/
+/** Free an enumeration Linked List */
 void USBRL_API usb_relay_device_free_enumerate(struct usb_relay_device_info*);
 
 /** Open device that serial number is serial_number
@@ -77,7 +85,7 @@ intptr_t USBRL_API usb_relay_device_open_with_serial_number(const char *serial_n
 */
 intptr_t USBRL_API usb_relay_device_open(struct usb_relay_device_info *device_info);
 
-/* Close a USB relay device*/
+/* Close a USB relay device */
 void USBRL_API usb_relay_device_close(intptr_t hHandle);
 
 /** Turn ON a relay channel on the USB-Relay-Device
@@ -106,7 +114,7 @@ int USBRL_API usb_relay_device_close_one_relay_channel(intptr_t hHandle, int ind
 */
 int USBRL_API usb_relay_device_close_all_relay_channel(intptr_t hHandle);
 
-/*
+/** Get state of all channels of the  USB-Relay-Device
 Status bits:  one bit indicate a relay status.
 bit 0/1/2/3/4/5/6/7/8 indicate channel 1/2/3/4/5/6/7/8 status
 Bit value 1 means ON, 0 means OFF.
@@ -114,6 +122,29 @@ Bit value 1 means ON, 0 means OFF.
 */
 int USBRL_API usb_relay_device_get_status(intptr_t hHandle, unsigned int *status);
 
+#if 1 /* added */
+
+/** Get the library (dll) version
+@return Lower 16 bits: the library version. Higher bits: undefined, ignore.
+@note The original DLL does not have this function!
+*/
+int USBRL_API usb_relay_device_lib_version(void);
+
+
+/** 
+ The following functions are for non-native callers, to avoid fumbling with C structs.
+ Native C/C++ callers do not need to use these.
+ The ptr_usb_relay_device_info arg is pointer to struct usb_relay_device_info, cast to intptr_t, void*, etc.
+*/
+
+/* Return next info struct pointer in the list returned by usb_relay_device_enumerate() */
+intptr_t USBRL_API usb_relay_device_next_dev(intptr_t ptr_usb_relay_device_info);
+/* Get number of relay channels on the device */
+int      USBRL_API usb_relay_device_get_num_relays(intptr_t ptr_usb_relay_device_info);
+/* Get the ID string of the device. Returns pointer to const C string (1-byte, 0-terminated) */
+intptr_t USBRL_API usb_relay_device_get_id_string(intptr_t ptr_usb_relay_device_info);
+
+#endif /* added */
 
 #ifdef __cplusplus
 }

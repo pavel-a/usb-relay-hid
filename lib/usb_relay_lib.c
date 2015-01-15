@@ -2,6 +2,11 @@
 * USB HID relays API library
 * http://git.io/bGcxrQ
 *
+* This is reconstruction of the original Windows DLL, 
+* as supplied by the USB relay vendors.
+* It is binary compatible and works with their example programs.
+* The original usb_relay_device.h file has been slightly hacked up.
+*
 * 12-jan-2015 pa01 Win32 version
 */
 
@@ -11,11 +16,13 @@
 
 // Windows 32 or 64 bit
 #include "targetver.h"
-#define WIN32_EXTRALEAN             // Exclude rarely-used stuff from Windows headers
+#define WIN32_EXTRALEAN
 #include <windows.h>
 
-#define USBRL_API __declspec(dllexport)
-#define USBRL_CALL _cdecl
+/* The original DLL has cdecl calling convention */
+#define USBRL_CALL __cdecl
+#define USBRL_API __declspec(dllexport) USBRL_CALL
+
 #define snprintf   _snprintf
 
 #endif //WIN32
@@ -545,11 +552,45 @@ int USBRL_API usb_relay_device_get_status(intptr_t hHandle, unsigned int *status
     return 0;
 }
 
-/** Return lib version
+/************ Added ****************/
+
+/** Get the library (dll) version
+@return Lower 16 bits: the library version. Higher bits: undefined, ignore.
+@note The original DLL does not have this function!
 */
 int USBRL_API usb_relay_device_lib_version(void)
 {
 	return (int)(MY_VERSION);
+}
+
+/** 
+The following functions are for non-native callers, to avoid fumbling with C structs.
+Native C/C++ callers do not need to use these.
+The ptr_usb_relay_device_info arg is pointer to struct usb_relay_device_info, cast to intptr_t, void*, etc.
+*/
+
+/* Return next info struct pointer in the list returned by usb_relay_device_enumerate() */
+intptr_t USBRL_API usb_relay_device_next_dev(intptr_t ptr_usb_relay_device_info)
+{
+    if (!ptr_usb_relay_device_info)
+        return 0;
+    return (intptr_t)(void*)((pusb_relay_device_info_t)ptr_usb_relay_device_info)->next;
+}
+
+/* Get number of relay channels on the device */
+int USBRL_API usb_relay_device_get_num_relays(intptr_t ptr_usb_relay_device_info)
+{
+    if (!ptr_usb_relay_device_info)
+        return 0;
+    return (int)((pusb_relay_device_info_t)ptr_usb_relay_device_info)->type;
+}
+
+/* Get the ID string of the device. Returns pointer to const C string (1-byte, 0-terminated) */
+intptr_t USBRL_API usb_relay_device_get_id_string(intptr_t ptr_usb_relay_device_info)
+{
+    if (!ptr_usb_relay_device_info)
+        return 0;
+    return (intptr_t)(void const *)((pusb_relay_device_info_t)ptr_usb_relay_device_info)->serial_number;
 }
 
 #ifdef __cplusplus

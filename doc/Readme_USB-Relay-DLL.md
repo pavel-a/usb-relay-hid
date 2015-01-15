@@ -1,12 +1,13 @@
 How to use USB_RELAY_DEVICE DLL
 ===============================
 
-Version 1.0
+Version 2.0
 
 Changes to the original DLL:
 ----------------------------
  - Type used for handles changed from int to intptr_t, for 64-bit compatibility.
    This should be binary compatible with existing 32-bit clients. 
+ - Added helper functions for managed callers and scripts (see below)  
 
 
 Windows, Visual C++ applications
@@ -71,9 +72,33 @@ Using the API:
   Closes the Relay device handle opened by `usb_relay_device_open()` or
    `usb_relay_device_open_with_serial_number()`
  
-* `usb_relay_exit`
+ * `usb_relay_exit`
   Finalizes the library
 
+ 
+  
+Helper functions for managed callers and scripts
+------------------------------------------------
+
+These functions help to use this lib in managed languages.  
+Native C or C++ callers do not need to use these.  
+The ptr_usb_relay_device_info parameter is pointer to `struct usb_relay_device_info`, converted to a pointer-sized integer.
+Type `int` means the "C" integer (which usually is 32-bit), `ptr` is a pointer-sized integer.  
+
+ * `ptr_usb_relay_device_info usb_relay_device_next_dev(ptr_usb_relay_device_info)`  
+    Returns pointer to the next element of device list obtained from `usb_relay_device_enumerate`
+	
+ *  `int usb_relay_device_get_num_relays(ptr_usb_relay_device_info)`  
+    Returns number of relay channels on the device. Values <= 0 are not valid and mean error.
+  
+ *  `ptr usb_relay_device_get_id_string(ptr_usb_relay_device_info)`  
+    Returns the "serial number" string of the device, as pointer to constant C string (one-byte characters, null terminated).
+
+  *  `int USBRL_API usb_relay_device_lib_version()`   
+   Returns the version of the library.
+   The lower 16 bits are the library version. Higher bits: undefined, ignore.
+	
+  
 Error handling
 ---------------
 If error occurred, the API functions that return error code return -1;
