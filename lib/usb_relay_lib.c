@@ -2,7 +2,7 @@
 * USB HID relays API library
 * http://git.io/bGcxrQ
 *
-* This is reconstruction of the original Windows DLL, 
+* This is reconstruction of the original Windows DLL,
 * as supplied by the USB relay vendors.
 * It is binary compatible and works with their example programs.
 * The original usb_relay_device.h file has been slightly hacked up.
@@ -19,12 +19,13 @@
 #define WIN32_EXTRALEAN
 #include <windows.h>
 
+#ifdef _MSC_VER
 /* The original DLL has cdecl calling convention */
 #define USBRL_CALL __cdecl
 #define USBRL_API __declspec(dllexport) USBRL_CALL
 
 #define snprintf   _snprintf
-
+#endif // _MSC_VER
 #endif //WIN32
 
 #include "usb_relay_device.h"
@@ -56,14 +57,14 @@ struct usbrelay_internal_s {
     USBDEVHANDLE usbh; // handle
     char idstr[8];
 };
-    
+
 // struct for enum context
 struct enumctx_s {
     struct usbrelay_internal_s *head, *tail;
     int numdevs;
     int status;
 };
-    
+
 // Globals
 
 const char *g_dummyPath = "NOTHING"; // passing dev.path to client not implemented, I return this as path.
@@ -118,7 +119,7 @@ static int rel_onoff( USBDEVHANDLE dev, int is_on, int relaynum )
     unsigned char buffer[10];
     int err = -1;
     unsigned char cmd1, cmd2, mask, maskval;
-    
+
     if ( relaynum < 0 && (-relaynum) <= 8 ) {
         mask = 0xFF;
         cmd2 = 0;
@@ -153,7 +154,7 @@ static int rel_onoff( USBDEVHANDLE dev, int is_on, int relaynum )
         printerr("Error writing data: %s\n", usbErrorMessage(err));
         return 1;
     }
-    
+
     // Read back & verify
     err = rel_read_status_raw(dev, NULL);
     if ( err < 0 ) {
@@ -162,7 +163,7 @@ static int rel_onoff( USBDEVHANDLE dev, int is_on, int relaynum )
     }
 
     err = err & mask;
-    if (err != maskval) {    
+    if (err != maskval) {
         printerr("Error: failed to set relay %u %s\n", relaynum, is_on ? "ON":"OFF");
         return 1;
     }
@@ -182,7 +183,7 @@ int USBRL_API usb_relay_init(void)
 }
 
 /** Finalize the USB Relay Library.
-This function frees all of the static data associated with USB Relay Library. 
+This function frees all of the static data associated with USB Relay Library.
 It should be called at the end of execution to avoid memory leaks.
 @returns: This function returns 0 on success and -1 on error.
 */
@@ -192,7 +193,7 @@ int USBRL_API usb_relay_exit(void)
 }
 
 // Enum function for building list of devices
-static 
+static
 int enumfunc(USBDEVHANDLE usbh, void *context)
 {
 //    static const char vendorName[] = USB_RELAY_VENDOR_NAME;
@@ -240,7 +241,7 @@ int enumfunc(USBDEVHANDLE usbh, void *context)
         dbgprintf("Error reading report 0: %s\n", usbErrorMessage(err));
         goto next;
     }
-    
+
     for (i = 1; i <= USB_RELAY_ID_STR_LEN; i++)
     {
         unsigned char x = (unsigned char)buffer[i];
@@ -278,7 +279,7 @@ int enumfunc(USBDEVHANDLE usbh, void *context)
     } else {
         ectx->tail->urdi.next = (pusb_relay_device_info_t)q;
     }
-    
+
     ++ectx->numdevs;
     return 1;
 
@@ -289,7 +290,7 @@ int enumfunc(USBDEVHANDLE usbh, void *context)
 }
 
 // Enum function for open one device by ID
-static 
+static
 int enumOpenfunc(USBDEVHANDLE usbh, void *context)
 {
 //    static const char vendorName[] = USB_RELAY_VENDOR_NAME;
@@ -337,7 +338,7 @@ int enumOpenfunc(USBDEVHANDLE usbh, void *context)
         dbgprintf("Error reading report 0: %s\n", usbErrorMessage(err));
         goto next;
     }
-    
+
     for (i = 1; i <= USB_RELAY_ID_STR_LEN; i++)
     {
         unsigned char x = (unsigned char)buffer[i];
@@ -399,7 +400,7 @@ void USBRL_API usb_relay_device_free_enumerate(struct usb_relay_device_info *dil
         free(p);
         p = q;
     }
-    
+
     return;
 }
 
@@ -413,7 +414,7 @@ intptr_t USBRL_API usb_relay_device_open_with_serial_number(const char *serial_n
     int ret;
     struct usbrelay_internal_s *q;
     memset(&ectx, 0, sizeof(ectx));
-    
+
     if (serial_number && len != USB_RELAY_ID_STR_LEN) {
         printerr("Specified invalid str id length: %u", len);
         return (intptr_t)0;
@@ -454,7 +455,7 @@ intptr_t USBRL_API  usb_relay_device_open(struct usb_relay_device_info *device_i
     if ( (uintptr_t)p->usbh == 0 || (uintptr_t)p->usbh == (uintptr_t)-1 )
         return 0;
     //$$$ validate more
-    return (uintptr_t)device_info;  
+    return (uintptr_t)device_info;
 }
 
 /** Close a USB relay device*/
@@ -545,10 +546,10 @@ int USBRL_API usb_relay_device_get_status(intptr_t hHandle, unsigned int *status
     err = rel_read_status_raw(p->usbh, NULL);
     if ( err < 0 ) {
         printerr("Error reading data: %s\n", usbErrorMessage(err));
-        return 1;
+        return -err;
     }
 
-    *status = (unsigned char)err; 
+    *status = (unsigned char)err;
     return 0;
 }
 
@@ -563,7 +564,7 @@ int USBRL_API usb_relay_device_lib_version(void)
 	return (int)(MY_VERSION);
 }
 
-/** 
+/**
 The following functions are for non-native callers, to avoid fumbling with C structs.
 Native C/C++ callers do not need to use these.
 The ptr_usb_relay_device_info arg is pointer to struct usb_relay_device_info, cast to intptr_t, void*, etc.
@@ -593,7 +594,21 @@ intptr_t USBRL_API usb_relay_device_get_id_string(intptr_t ptr_usb_relay_device_
     return (intptr_t)(void const *)((pusb_relay_device_info_t)ptr_usb_relay_device_info)->serial_number;
 }
 
+/* Get status of all relays on the device.
+* @return Bitmask of all relay channels state, if the value > 0. Negative values mean error.
+  bit 0/1/2/3/4/5/6/7/8 indicate channel 1/2/3/4/5/6/7/8 status
+  Each bit value 1 means ON, 0 means OFF.
+* @note This is same as usb_relay_device_get_status, but without dereferencing pointers.
+*/
+int USBRL_API usb_relay_device_get_status_bitmap(intptr_t hHandle)
+{
+    unsigned int st;
+    int err = usb_relay_device_get_status(hHandle, &st);
+    if (0 == err)
+        return (int)st;
+    return (err > 0) ? (-err) : err;
+}
+
 #ifdef __cplusplus
 }
-#endif 
-
+#endif

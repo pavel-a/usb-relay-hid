@@ -60,7 +60,7 @@ extern "C" {
 int USBRL_API usb_relay_init(void);
 
 /** Finalize the USB Relay Library.
-This function frees all of the static data associated with USB Relay Library. 
+This function frees all of the static data associated with USB Relay Library.
 It should be called at the end of execution to avoid memory leaks.
 @returns:This function returns 0 on success and -1 on error.
 */
@@ -131,23 +131,34 @@ int USBRL_API usb_relay_device_get_status(intptr_t hHandle, unsigned int *status
 int USBRL_API usb_relay_device_lib_version(void);
 
 
-/** 
- The following functions are for non-native callers, to avoid fumbling with C structs.
+/**
+ The following functions are for non-native callers, to avoid fumbling with C structs and pointers.
  Native C/C++ callers do not need to use these.
  The ptr_usb_relay_device_info arg is pointer to struct usb_relay_device_info, cast to intptr_t, void*, etc.
 */
 
 /* Return next info struct pointer in the list returned by usb_relay_device_enumerate() */
 intptr_t USBRL_API usb_relay_device_next_dev(intptr_t ptr_usb_relay_device_info);
+
 /* Get number of relay channels on the device */
 int      USBRL_API usb_relay_device_get_num_relays(intptr_t ptr_usb_relay_device_info);
+
 /* Get the ID string of the device. Returns pointer to const C string (1-byte, 0-terminated) */
 intptr_t USBRL_API usb_relay_device_get_id_string(intptr_t ptr_usb_relay_device_info);
+
+/* Get status of all relays on the device.
+* @param hHandle The relay device handle
+* @return Bitmask of all relay channels state, if the value > 0. Negative values mean error.
+*  bit 0/1/2/3/4/5/6/7/8 indicate channel 1/2/3/4/5/6/7/8 status
+*  Each bit value 1 means ON, 0 means OFF.
+* @note This is same as usb_relay_device_get_status, but without dereferencing pointers.
+*/
+int USBRL_API usb_relay_device_get_status_bitmap(intptr_t hHandle);
 
 #endif /* added */
 
 #ifdef __cplusplus
 }
-#endif 
+#endif
 
 #endif /* USB_RELAY_DEVICE_H__ */

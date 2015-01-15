@@ -5,9 +5,9 @@ Version 2.0
 
 Changes to the original DLL:
 ----------------------------
- - Type used for handles changed from int to intptr_t, for 64-bit compatibility.
+ - The type used for handles changed from int to intptr_t, for 64-bit compatibility.
    This should be binary compatible with existing 32-bit clients. 
- - Added helper functions for managed callers and scripts (see below)  
+ - Added helper functions for use from managed languages and scripts; see below.  
 
 
 Windows, Visual C++ applications
@@ -94,10 +94,15 @@ Type `int` means the "C" integer (which usually is 32-bit), `ptr` is a pointer-s
  *  `ptr usb_relay_device_get_id_string(ptr_usb_relay_device_info)`  
     Returns the "serial number" string of the device, as pointer to constant C string (one-byte characters, null terminated).
 
-  *  `int USBRL_API usb_relay_device_lib_version()`   
+ *  `int USBRL_API usb_relay_device_lib_version()`   
    Returns the version of the library.
    The lower 16 bits are the library version. Higher bits: undefined, ignore.
 	
+ * `int usb_relay_device_get_status_bitmap(intptr_t hHandle)`  
+   Returns the states of all channels on a relay device as a bit mask.
+   This is same as `usb_relay_device_get_status` but without dereferencing pointers.
+   Negative returned values indicate error. Else, bits 0-7 of the value are states of each channel.
+
   
 Error handling
 ---------------
