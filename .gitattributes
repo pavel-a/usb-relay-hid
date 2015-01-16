@@ -12,4 +12,5 @@
 *.bat eol=crlf
 *.txt eol=crlf
 *.c eol=lf
+*.cpp eol=lf
 *.h eol=lf

@@ -85,7 +85,11 @@ System::Void Form1::buttonOpen_Click(System::Object^  sender, System::EventArgs^
 	  // Get and show state:
       //BUGBUG g_dev is not usb_relay_device_info* in the orig library! use my new f()  ?? use only info in the list?
 	  struct usb_relay_device_info* di = (struct usb_relay_device_info*)g_dev;
-	  int numChannels = (int)di->type;
+	  int numChannels = (unsigned char)di->type;
+      if ( numChannels > MaxRelaysNum ||  numChannels == 0) {
+           // oops?
+           numChannels = MaxRelaysNum;
+      }
 	  g_chanNum = numChannels;
 	  unsigned st = 0;
 	  int r = usb_relay_device_get_status( g_dev, &st);
