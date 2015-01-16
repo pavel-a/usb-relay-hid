@@ -135,7 +135,7 @@ static int rel_onoff( USBDEVHANDLE dev, int is_on, int relaynum )
             printerr("Relay number must be 1-8\n");
             return 1;
         }
-        mask = (unsigned char)(1U << relaynum);
+        mask = (unsigned char)(1U << (relaynum-1));
         cmd2 = (unsigned char)relaynum;
         if (is_on) {
             cmd1 = 0xFF;
@@ -428,7 +428,7 @@ intptr_t USBRL_API usb_relay_device_open_with_serial_number(const char *serial_n
 
     ret = usbhidEnumDevices(USB_CFG_VENDOR_ID, USB_CFG_DEVICE_ID,
                       (void*)&ectx,
-                      enumfunc);
+                      enumOpenfunc);
     if (ret != 0)
         goto ret_err; // error during enum
 
