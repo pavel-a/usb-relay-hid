@@ -12,11 +12,11 @@ using namespace System::Security::Permissions;
 // associated with an assembly.
 //
 [assembly:AssemblyTitleAttribute("GUIapp")];
-[assembly:AssemblyDescriptionAttribute("")];
+[assembly:AssemblyDescriptionAttribute("GUI demo for USB HID relay devices")];
 [assembly:AssemblyConfigurationAttribute("")];
 [assembly:AssemblyCompanyAttribute("")];
 [assembly:AssemblyProductAttribute("GUIapp")];
-[assembly:AssemblyCopyrightAttribute("Copyright (c)  2015")];
+[assembly:AssemblyCopyrightAttribute("Copyright (c)  2014")];
 [assembly:AssemblyTrademarkAttribute("")];
 [assembly:AssemblyCultureAttribute("")];
 
@@ -37,4 +37,4 @@ using namespace System::Security::Permissions;
 
 [assembly:CLSCompliantAttribute(true)];
 
-[assembly:SecurityPermission(SecurityAction::RequestMinimum, UnmanagedCode = true)];
+//[assembly:SecurityPermission(SecurityAction::RequestMinimum, UnmanagedCode = true)];

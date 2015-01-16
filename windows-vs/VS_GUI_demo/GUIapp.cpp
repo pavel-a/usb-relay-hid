@@ -25,7 +25,7 @@ int main(array<System::String ^> ^args)
 
 	// Enabling Windows XP visual effects before any controls are created
 	Application::EnableVisualStyles();
-	Application::SetCompatibleTextRenderingDefault(false); 
+	Application::SetCompatibleTextRenderingDefault(false);
 
 	// Create the main window and run it
 	Application::Run(gcnew Form1());
@@ -77,7 +77,7 @@ System::Void Form1::buttonOpen_Click(System::Object^  sender, System::EventArgs^
 		buttonClose_Click(sender, e);
 	}
 
-	intptr_t dh = usb_relay_device_open_with_serial_number(id, strlen(id));
+	intptr_t dh = usb_relay_device_open_with_serial_number(id, (int)strlen(id));
 	if ( dh ) {
 		g_dev = dh;
 	  IndOpen->BackColor = Drawing::Color::LimeGreen;

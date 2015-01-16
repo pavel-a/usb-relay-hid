@@ -15,25 +15,25 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="hiddata.h">
+    <ClInclude Include="../hiddata.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="hidusb-tool.h">
+    <ClInclude Include="../hidusb-tool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="targetver.h">
+    <ClInclude Include="../targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="hiddata_mswin.c">
+    <ClCompile Include="../hiddata_mswin.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="usbrelay-cmd.c">
+    <ClCompile Include="../usbrelay-cmd.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="README-hidusb-relay-cmd.txt" />
+    <Text Include="../README-hidusb-relay-cmd.txt" />
   </ItemGroup>
 </Project>
