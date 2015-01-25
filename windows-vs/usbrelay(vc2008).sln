@@ -5,7 +5,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hidusb-relay-cmd", "..\comm
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "usb-relay-dll", "..\lib\usb-relay-dll\usb-relay-dll(vc2008).vcproj", "{0E07152A-666D-4EB4-9049-BDE08C35A86D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GUIapp", "VS_GUI_demo\GUIapp.vcproj", "{59CCF7A0-C46F-4699-9A55-3A7DFA3333D8}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GUIapp", "VS_GUI_demo\GUIapp(vc2008).vcproj", "{59CCF7A0-C46F-4699-9A55-3A7DFA3333D8}"
 	ProjectSection(ProjectDependencies) = postProject
 		{0E07152A-666D-4EB4-9049-BDE08C35A86D} = {0E07152A-666D-4EB4-9049-BDE08C35A86D}
 	EndProjectSection

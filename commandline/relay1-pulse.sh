@@ -1,9 +1,11 @@
 #!/bin/sh
 # Pulse USB relay channel for  (sec) seconds
-# Needs root acccess! run with sudo!
-sec=${1}
+# If access to the USB device requires root, run with sudo
+sec=${1:1}
 chan=1
 SUDO=sudo
-$SUDO ./usbrelay-cmd ON $chan
+dir="./"
+
+$SUDO ${dir}hidusbrelay-cmd ON $chan
 sleep $sec
-$SUDO ./usbrelay-cmd OFF $chan
+$SUDO ${dir}hidusbrelay-cmd OFF $chan
