@@ -55,7 +55,7 @@ int usbhidEnumDevices(int vendor, int product,
     struct usb_bus      *bus;
     struct usb_device   *dev;
     usb_dev_handle      *handle = NULL;
-    int                 errorCode = USBOPEN_ERR_NOTFOUND;
+    int                 errorCode = USBHID_ERR_NOTFOUND;
     static int          didUsbInit = 0;
 
     if(!didUsbInit){
@@ -69,7 +69,7 @@ int usbhidEnumDevices(int vendor, int product,
             if (dev->descriptor.idVendor == vendor && dev->descriptor.idProduct == product) {
                 handle = usb_open(dev); /* we need to open the device in order to query strings */
                 if ( !handle ) {
-                    errorCode = USBOPEN_ERR_ACCESS;
+                    errorCode = USBHID_ERR_ACCESS;
                     fprintf(stderr, "Warning: cannot open USB device: %s\n", usb_strerror());
                     continue;
                 }
@@ -129,7 +129,7 @@ int usbhidGetVendorString(USBDEVHANDLE usbh, char *buffer, int len)
     int len2 = usbhidGetStringAscii(usbDevHandle(usbh), usbDevStruct(usbh)->descriptor.iManufacturer, buffer, len);
     if (len2 < 0) {
         fprintf(stderr, "Warning: cannot query vendor for device\n");
-        return USBOPEN_ERR_IO;
+        return USBHID_ERR_IO;
     }
     return 0;
 }
@@ -139,7 +139,7 @@ int usbhidGetProductString(USBDEVHANDLE usbh, char *buffer, int len)
     int len2 = usbhidGetStringAscii(usbDevHandle(usbh), usbDevStruct(usbh)->descriptor.iProduct, buffer, len);
     if (len2 < 0) {
         fprintf(stderr, "Warning: cannot query product for device\n");
-        return USBOPEN_ERR_IO;
+        return USBHID_ERR_IO;
     }
     return 0;
 }
@@ -161,7 +161,7 @@ int usbhidSetReport(USBDEVHANDLE usbh, char *buffer, int len)
     if (bytesSent != len) {
         if (bytesSent < 0)
             fprintf(stderr, "Error sending message: %s\n", usb_strerror());
-        return USBOPEN_ERR_IO;
+        return USBHID_ERR_IO;
     }
     return 0;
 }
@@ -181,7 +181,7 @@ int bytesReceived, maxLen = *len;
             0, buffer, maxLen, A_REPORT_REQUEST_TIMEOUT);
     if(bytesReceived < 0){
         fprintf(stderr, "Error sending message: %s\n", usb_strerror());
-        return USBOPEN_ERR_IO;
+        return USBHID_ERR_IO;
     }
     *len = bytesReceived;
     if (!usesReportIDs(usbh)) {
