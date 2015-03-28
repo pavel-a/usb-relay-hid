@@ -93,7 +93,7 @@ void Form1::buttonOpen_Click(System::Object^  sender, System::EventArgs^  e)
       if ( r != 0 ) {
          setMsg("Error reading device state", true);
       } else {
-          for (int i = 0; i < MaxRelaysNum; i++ ) {
+          for (i = 0; i < MaxRelaysNum; i++ ) {
             System::Windows::Forms::TextBox^ t;
             t = static_cast<System::Windows::Forms::TextBox^>(aIndicators->GetValue(i));
             Drawing::Color c = st & (1 << i) ? GREEN : RED;
