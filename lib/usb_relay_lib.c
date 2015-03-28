@@ -24,7 +24,9 @@
 #define USBRL_CALL __cdecl
 #define USBRL_API __declspec(dllexport) USBRL_CALL
 
+#if _MSC_VER < 1900 /* before VS2015 */
 #define snprintf   _snprintf
+#endif /* VS2015 */
 #endif // _MSC_VER
 #endif //WIN32
 
