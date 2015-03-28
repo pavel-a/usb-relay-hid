@@ -40,7 +40,7 @@ Libraries to link are:
  */
 struct usbDevice;
 typedef struct usbDevice    usbDevice_t;
-typedef struct usbDevice    *USBDEVHANDLE;
+typedef usbDevice_t         *USBDEVHANDLE;
 
 
 /* ------------------------------------------------------------------------ */
@@ -95,7 +95,7 @@ int usbhidGetReport(USBDEVHANDLE usbh, int reportID, char *buffer, int *len);
  * Return description of error code
  * TODO? return error descr. of underlying libusb or hid layer too?
  */
-int usbhidStrerror_r( int err, char *buf, int len);
+int usbhidStrerror_r(int err, char *buf, int len);
 
 /* ------------------------------------------------------------------------ */
 

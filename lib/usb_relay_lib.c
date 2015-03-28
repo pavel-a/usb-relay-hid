@@ -40,12 +40,12 @@
 #include <string.h>
 #include <stdlib.h>
 
-//#define dbgprintf(fmt, ...) fprintf(stderr, fmt, __VA_ARGS__)
-//#define dbgprintf(fmt, ...) printf(fmt, __VA_ARGS__)
-#define dbgprintf(fmt, ...) __noop(fmt, __VA_ARGS__)
-//#define printerr(fmt, ...) fprintf(stderr, fmt, __VA_ARGS__)
-//#define printerr(fmt, ...) printf(fmt, __VA_ARGS__)
-#define printerr(fmt, ...) __noop(fmt, __VA_ARGS__)
+//#define dbgprintf(fmt, ...) fprintf(stderr, fmt, ## __VA_ARGS__)
+//#define dbgprintf(fmt, ...) printf(fmt, ## __VA_ARGS__)
+#define dbgprintf(fmt, ...)  //__noop(fmt, __VA_ARGS__)
+//#define printerr(fmt, ...) fprintf(stderr, fmt, ## __VA_ARGS__)
+//#define printerr(fmt, ...) printf(fmt, ## __VA_ARGS__)
+#define printerr(fmt, ...) // __noop(fmt, __VA_ARGS__)
 
 #ifdef __cplusplus
 extern "C" {

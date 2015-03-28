@@ -18,6 +18,9 @@
 #  define USBRL_CALL
 #  define USBRL_API USBRL_CALL
 #endif /* Windows & Not Microsoft's compiler */
+#else /* non-Windows */
+  /* do not include this always for compat with VC++ < 2010 */
+#include <stdint.h>
 #endif /* WIN32 */
 
 #ifndef USBRL_CALL

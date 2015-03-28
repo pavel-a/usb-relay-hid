@@ -1,21 +1,22 @@
-# Makefile for HID USB relay utility, hidusbrelay-cmd
-# pa03 24-jan-2015
-#
+# Makefile for HID USB relay utility, hidusbrelay-cmd and library
+# for Linux
+# (Quick'n'dirty - no .h dependencies, etc.)
+# Assume make is run in this dir
+# pa04 24-jan-2015
+
 # prototype:
 # Author: Christian Starkjohann
 # Creation Date: 2008-04-11
-# Tabsize: 4
 # Copyright: (c) 2008 by OBJECTIVE DEVELOPMENT Software GmbH
-# License: GNU GPL v2 (see License.txt), GNU GPL v3 or proprietary (CommercialLicense.txt)
 
 SRCDIR=..
 VPATH = $(SRCDIR)
 
-CMD_UTILITY=hidusb-relay-cmd
+CMD_UTILITY := hidusb-relay-cmd
+SHRLIB      := usb_relay_device.so
 
-# For Linux
-# Using old simple version 0.1 of libusb
-HIDDATA=hiddata_libusb01
+# For Linux: Using old simple version 0.1 of libusb
+HIDDATA  := hiddata_libusb01
 USBFLAGS := $(shell libusb-config --cflags)
 USBLIBS  := $(shell libusb-config --libs)
 EXE_SUFFIX=
@@ -49,7 +50,19 @@ strip: $(PROGRAM)
 	strip $(PROGRAM)
 
 clean:
-	rm -f $(OBJ) $(PROGRAM)
+	rm -f *.o $(PROGRAM) $(SHRLIB)
 
 %.c.o:
 	$(CC) $(ARCH_COMPILE) $(CFLAGS) -c $*.c -o $*.o
+
+#
+# Shared library
+# The main lib source is in lib/ and hiddata src with the cmd utility - reorg!
+#
+SRCS_LIB = $(HIDDATA) usb_relay_lib
+CFLAGS += -I../../lib
+VPATH =../../lib:..
+
+$(SHRLIB):	$(addsuffix .o, $(SRCS_LIB))
+	$(CC) -shared -Wl,-shared $(addsuffix .o, $(SRCS_LIB)) $(LIBS) -o $(SHRLIB)
+
