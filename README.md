@@ -20,7 +20,7 @@ Our intent is to make these devices work on Linux, 64-bit Windows and other plat
 Binary downloads, documentation, bugs, TO-DOs and more
 ----------------------
 
-All this is in the [Github project](http://git.io/bGcxrQ) - see the wiki pages and Issues. 
+All this is in the [Github project](http://git.io/bGcxrQ) : releases, wiki pages and Issues. 
 
 
 
@@ -29,11 +29,17 @@ Current state
 
 A simple command-line utility for Linux (x86 or x64), Apple OS X and Windows (XP and newer, 32 and 64-bit).
 
-Source of the Windows DLL (USB_RELAY_DEVICE.DLL) and GUI demo app is now available. This is quite compatible with the binaries from the device vendors.
+Shared library for Linux (x86 or x64), Apple OS X and Windows.
 
+Python (CPython) - supported thru the shared library 
+
+The Windows version of the shared lib, `USB_RELAY_DEVICE.DLL`, is backward compatible with the binary from the device vendor.
+Windows GUI demo app is similar to the device vendor's but written in C++/CLI.
+
+Required to build:
 
 - Windows version: builds with VC++ and WDK 7.1, or VC++ 2013 "community edition" with its matching SDK (Win8.1).
-- Linux version builds with gcc and libusb v. 0.1. Tested on RH and Ubuntu.
+- Linux version builds with gcc and libusb v. 0.1. Tested on RH, Ubuntu, Mint.
 - OS-X 10.9+ version builds with Xcode and plain IOKit libraries. 
 
 
