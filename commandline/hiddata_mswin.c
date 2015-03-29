@@ -30,7 +30,9 @@
 #ifdef _MSC_VER
 #pragma comment(lib, "setupapi")
 #pragma comment(lib, "hid")
+#if _MSC_VER < 1900 /* before VS2015 */
 #define snprintf   _snprintf
+#endif /* VS2015 */
 #else /* GCC, Mingw... */
 #endif /*_MSC_VER*/
 
@@ -172,7 +174,7 @@ int usbhidSetReport(USBDEVHANDLE usbh, char *buffer, int len)
 int usbhidGetReport(USBDEVHANDLE usbh, int reportNumber, char *buffer, int *len)
 {
     BOOLEAN rval = 0;
-    buffer[0] = reportNumber;
+    buffer[0] = (char)reportNumber;
     rval = HidD_GetFeature((HANDLE)usbh, buffer, *len);
     return rval == 0 ? USBHID_ERR_IO_HID : 0;
 }
@@ -183,12 +185,16 @@ int usbhidStrerror_r( int err, char *buf, int len)
     const char *s;
     switch (err) {
         case USBHID_ERR_ACCESS:      s = "Access to device denied";
+            break;
         case USBHID_ERR_NOTFOUND:    s = "The specified device was not found";
+            break;
         case USBHID_ERR_IO:          s = "Communication error with device";
+            break;
         case USBHID_ERR_IO_HID:      s = "HID I/O error with device";
+            break;
         default:
             s = "";
     }
-  
+
     return snprintf(buf, len, "%s", s);
 }

@@ -203,12 +203,16 @@ int usbhidStrerror_r( int err, char *buf, int len)
     const char *s;
     switch (err) {
         case USBHID_ERR_ACCESS:      s = "Access to device denied";
+            break;
         case USBHID_ERR_NOTFOUND:    s = "The specified device was not found";
+            break;
         case USBHID_ERR_IO:          s = "Communication error with device";
+            break;
         case USBHID_ERR_IO_HID:      s = "HID I/O error with device";
+            break;
         default:
             s = "";
     }
-  
+
     return snprintf(buf, len, "%s", s);
 }
