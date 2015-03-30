@@ -35,13 +35,14 @@ SRCS = usbrelay-cmd $(HIDDATA)
 
 PROGRAM=	$(CMD_UTILITY)$(EXE_SUFFIX)
 
+all: $(PROGRAM) $(SHRLIB)
+
 CC=		gcc
 DEBUGFLAGS=
 CFLAGS=		-O -Wall $(USBFLAGS) $(DEBUGFLAGS) -I$(SRCDIR)
 LIBS=		$(USBLIBS)
 OBJ=		$(addsuffix .o,$(SRCS))
 
-all: $(PROGRAM)
 
 $(PROGRAM): $(OBJ)
 	$(CC) -o $(PROGRAM) $(OBJ) $(LIBS)
@@ -65,4 +66,5 @@ VPATH =../../lib:..
 
 $(SHRLIB):	$(addsuffix .o, $(SRCS_LIB))
 	$(CC) -shared -Wl,-shared $(addsuffix .o, $(SRCS_LIB)) $(LIBS) -o $(SHRLIB)
+
 

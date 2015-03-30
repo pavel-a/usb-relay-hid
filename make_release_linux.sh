@@ -11,14 +11,12 @@
 #   (nothing for linux?)
 # Test/
 
-echo "TO DO!" && exit 1
-
 set -e
 
 export REL=_rel
 
 mkdirr() {
- if [ ! -d $1 ]; then mkdir -r $1 ; fi 
+ if [ ! -d $1 ]; then mkdir --parents $1 ; fi 
 }
 
 mkdirr $REL
@@ -51,6 +49,7 @@ copy_noarch
 
 # Tests ...
 mkdirr  $REL/Test
-cp commandline/relay1-pulse.sh $REL/Test
+cp Test/relay1-pulse.sh $REL/Test
+cp Test/[Tt]est*.py $REL/Test
 
 echo "Done"
