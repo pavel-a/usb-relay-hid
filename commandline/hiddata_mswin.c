@@ -43,7 +43,7 @@
 static void usbstring_to_ascii(unsigned short *wp, char *cp, int size)
 {
     unsigned short *wpend = wp + (size/sizeof(unsigned short));
-    for( ; wp < wpend; )
+    for ( ; wp < wpend; )
     {
         unsigned short h = *wp++;
         *cp++ = (h < 0xFF) ? (char)h : '?';
@@ -96,11 +96,13 @@ int usbhidEnumDevices(int vendor, int product,
     SP_DEVICE_INTERFACE_DATA            deviceInfo;
     SP_DEVICE_INTERFACE_DETAIL_DATA_W   *deviceDetails = NULL;
     DWORD                               size;
-    int                                 i, openFlag = 0;  /* may be FILE_FLAG_OVERLAPPED */
+    int                                 i;
+    int openFlags = 0;
     int                                 errorCode = USBHID_ERR_NOTFOUND;
     HANDLE                              handle = INVALID_HANDLE_VALUE;
     HIDD_ATTRIBUTES                     deviceAttributes;
-                
+    BOOL b;
+
     HidD_GetHidGuid(&hidGuid);
     deviceInfoList = SetupDiGetClassDevsW(&hidGuid, NULL, NULL, DIGCF_PRESENT | DIGCF_INTERFACEDEVICE);
     if (!deviceInfoList || deviceInfoList == INVALID_HANDLE_VALUE)
@@ -110,33 +112,42 @@ int usbhidEnumDevices(int vendor, int product,
 
     deviceInfo.cbSize = sizeof(deviceInfo);
     for (i=0; ; i++) {
-        if(handle != INVALID_HANDLE_VALUE){
+        if (handle != INVALID_HANDLE_VALUE) {
             CloseHandle(handle);
             handle = INVALID_HANDLE_VALUE;
         }
-        if( !SetupDiEnumDeviceInterfaces(deviceInfoList, 0, &hidGuid, i, &deviceInfo) )
+        if ( !SetupDiEnumDeviceInterfaces(deviceInfoList, 0, &hidGuid, i, &deviceInfo) )
             break;  /* no more entries */
-        /* first do a dummy call just to determine the actual size required */
+        /* First do a dummy call just to determine the actual size required */
+        size = 0;
         SetupDiGetDeviceInterfaceDetailW(deviceInfoList, &deviceInfo, NULL, 0, &size, NULL);
-        if(deviceDetails != NULL)
+        if ( size == 0 )
+            continue;
+        if (deviceDetails != NULL)
             free(deviceDetails);
         deviceDetails = malloc(size);
+        if ( !deviceDetails ) {
+            DEBUG_PRINT(("ALLOC ERROR!\n"));
+            continue;
+        }
         deviceDetails->cbSize = sizeof(*deviceDetails);
-        /* this call is for real: */
-        SetupDiGetDeviceInterfaceDetailW(deviceInfoList, &deviceInfo, deviceDetails, size, &size, NULL);
+        /* 2nd call */
+        b = SetupDiGetDeviceInterfaceDetailW(deviceInfoList, &deviceInfo, deviceDetails, size, &size, NULL);
+        if ( !b )
+            continue;
         DEBUG_PRINT(("checking HID path \"%s\"\n", deviceDetails->DevicePath));
 
         handle = CreateFileW(deviceDetails->DevicePath, 
-            GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING, openFlag, NULL);
-        if(handle == INVALID_HANDLE_VALUE){
+            GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING, openFlags, NULL);
+        if (handle == INVALID_HANDLE_VALUE){
             DEBUG_PRINT(("open USB device failed: gle=%d\n", (int)GetLastError()));
-            /* errorCode = USBOPEN_ERR_ACCESS; opening will always fail for mouse -- ignore */
+            /* Opening devices owned by OS or other apps will fail ; just ignore these. */
             continue;
         }
         deviceAttributes.Size = sizeof(deviceAttributes);
         HidD_GetAttributes(handle, &deviceAttributes);
         DEBUG_PRINT(("device attributes: vid=%d pid=%d ver=%4.4X\n", deviceAttributes.VendorID, deviceAttributes.ProductID, deviceAttributes.VersionNumber));
-        if(deviceAttributes.VendorID != vendor || deviceAttributes.ProductID != product)
+        if (deviceAttributes.VendorID != vendor || deviceAttributes.ProductID != product)
             continue;   /* skip this device */
 
         errorCode = 0;
@@ -145,12 +156,12 @@ int usbhidEnumDevices(int vendor, int product,
             break; /* stop enumeration */
         }
 
-        /* Now the handle is owned by the callback */
+        /* Now the handle is owned by the callback It may close it before return or later. */
         handle = INVALID_HANDLE_VALUE;
     }
 
     SetupDiDestroyDeviceInfoList(deviceInfoList);
-    if(deviceDetails != NULL)
+    if (deviceDetails != NULL)
         free(deviceDetails);
 
     return errorCode;
