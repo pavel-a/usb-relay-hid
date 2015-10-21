@@ -2,7 +2,7 @@
 # for Linux
 # (Quick'n'dirty - no .h dependencies, etc.)
 # Assume make is run in this dir
-# pa04 24-jan-2015
+# pa05 21-oct-2015
 
 # prototype:
 # Author: Christian Starkjohann
@@ -61,7 +61,7 @@ clean:
 # The main lib source is in lib/ and hiddata src with the cmd utility - reorg!
 #
 SRCS_LIB = $(HIDDATA) usb_relay_lib
-CFLAGS += -I../../lib
+CFLAGS += -I../../lib -fPIC
 VPATH =../../lib:..
 
 $(SHRLIB):	$(addsuffix .o, $(SRCS_LIB))
