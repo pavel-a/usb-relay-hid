@@ -69,7 +69,7 @@ struct enumctx_s {
 
 // Globals
 
-const char *g_dummyPath = "NOTHING"; // passing dev.path to client not implemented, I return this as path.
+static const char *g_dummyPath = "NOTHING"; // passing dev.path to client not implemented, I return this as path.
 
 static const char *usbErrorMessage(int errCode)
 {
@@ -280,6 +280,7 @@ int enumfunc(USBDEVHANDLE usbh, void *context)
         ectx->tail =q;
     } else {
         ectx->tail->urdi.next = (pusb_relay_device_info_t)q;
+        ectx->tail = q;
     }
 
     ++ectx->numdevs;
