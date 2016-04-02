@@ -1,9 +1,8 @@
-// Chinese USB/HID relay command line tool:
+// Command line tool for low-cost USB/HID relays
 //
-// pa02 20-Nov-2014 supports 1,2,4 - relay devices
+// pa02 20-Nov-2014 supports 1,2,4,8 - relay devices
 //
-// Build for Windows: using VC++ 2008 and WDK7.1
-//~~~~~~~~~~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 /* Prototype: V-USB example: vusb-20121206/examples/hid-data/commandline/hidtool.c 
  * Author: Christian Starkjohann
@@ -11,7 +10,7 @@
  * Copyright: (c) 2008 by OBJECTIVE DEVELOPMENT Software GmbH
  */
 
-#define A_VER_STR "r1.2"
+#define A_VER_STR "r1.4"
 #define A_URL "http://vusb.wikidot.com/project:driver-less-usb-relays-hid-interface"
 
 #include <stdio.h>
@@ -22,10 +21,11 @@
 #define USB_RELAY_VENDOR_NAME     "www.dcttech.com"
 #define USB_RELAY_NAME_PREF       "USBRelay"  // + number
 
-
-static int g_max_relay_num = 0;
+#define USB_RELAY_ID_STR_LEN      5 /* length of "unique serial number" in the devices */
 
 static int rel_read_status_raw(USBDEVHANDLE dev, void *raw_data);
+
+#define printerr(fmt, ...) fprintf(stderr, fmt, ## __VA_ARGS__);
 
 /* ------------------------------------------------------------------------- */
 
@@ -36,28 +36,28 @@ static void usage(char *myName)
     else p = strrchr(myName, '/'); /* whatever */
     if (p) myName = p + 1;
 
-    fprintf(stderr, "USBHID relay utility, " A_VER_STR " " A_URL "\n\n");
-    fprintf(stderr, "Usage:\n");
-    fprintf(stderr, "  %s on <num>  - turn relay <num> ON\n", myName);
-    fprintf(stderr, "  %s off <num> - turn relay <num> OFF\n", myName);
-    fprintf(stderr, "  %s state     - print state of the relays\n", myName);
-    fprintf(stderr, "  %s enum      - print state of all relay devices\n", myName);
-    fprintf(stderr, "\nParameter ID=XXXXX selects one device if several are connected.\n");
-    fprintf(stderr, "Example: %s ID=ABCDE on 1\n", myName);
+    printf("HID USB relay utility, " A_VER_STR " "
+                    "For info: " A_URL "\n"
+                    "Usage:\n");
+    printf("  %s on <num>  - turn relay <num> ON\n", myName);
+    printf("  %s off <num> - turn relay <num> OFF\n", myName);
+    printf("  %s state     - print states of the relays\n", myName);
+    printf("  %s enum      - print state of all found relay devices\n", myName);
+    printf("\nParameter ID=XXXXX selects one device if several are connected.\n");
+    printf("Example: %s ID=ABCDE ON 2\n\n", myName);
 }
 
 
 static const char *usbErrorMessage(int errCode)
 {
     static char buffer[80];
-
-    switch (errCode) {
-        case USBOPEN_ERR_ACCESS:      return "Access to device denied";
-        case USBOPEN_ERR_NOTFOUND:    return "The specified device was not found";
-        case USBOPEN_ERR_IO:          return "Communication error with device";
+    buffer[0] = 0;
+    if ( errCode != USBHID_ERR_UNKNOWN ) {
+        usbhidStrerror_r(errCode, buffer, sizeof(buffer));
     }
-
-    snprintf(buffer, sizeof(buffer), "Unknown USB error %d", errCode);
+    if ( 0 == buffer[0] ) {
+        snprintf(buffer, sizeof(buffer), "Unknown error (%d)", errCode);
+    }
     return buffer;
 }
 
@@ -65,8 +65,11 @@ static const char *usbErrorMessage(int errCode)
 static struct
 {
     USBDEVHANDLE mydev;
-    char id[10];
+    char id[USB_RELAY_ID_STR_LEN * 2];
 } g_enumCtx;
+
+
+static int g_max_relay_num = 0; // number of relays in the active device
 
 
 static int enumFunc(USBDEVHANDLE dev, void *context)
@@ -77,6 +80,8 @@ static int enumFunc(USBDEVHANDLE dev, void *context)
     char buffer[128*sizeof(short)]; // max USB string is 128 UTF-16 chars
     int num = 0;
     int i;
+
+	(context); // ~ unreferenced warning
 
     err = usbhidGetVendorString(dev, buffer, sizeof(buffer));
     if ( err || 0 != strcmp( buffer, vendorName) )
@@ -91,7 +96,7 @@ static int enumFunc(USBDEVHANDLE dev, void *context)
     }
 
     i = (int)strlen(buffer);
-    if ( i != strlen(productName) + 1 )
+    if ( i != (int)strlen(productName) + 1 )
     {
         goto next;
     }
@@ -107,19 +112,19 @@ static int enumFunc(USBDEVHANDLE dev, void *context)
 
     if ( num <= 0 || num > 8 )
     {
+        printerr("Unknown relay device? num relays=%d\n", num);
         goto next;
     }
 
-     /* Check the unique ID: 5 bytes at offs 0 */
+     /* Check the unique ID: USB_RELAY_ID_STR_LEN bytes at offset 1 (just after the report id) */
     err = rel_read_status_raw(dev, buffer);
     if( err < 0 )
     {
-        fprintf(stderr, "error reading report 0: %s\n", usbErrorMessage(err));
+        printerr("Error reading report 0: %s\n", usbErrorMessage(err));
         goto next;
     }
     
-    //hexdump(buffer + 1, sizeof(buffer) - 1);
-    for (i=1; i <=5; i++)
+    for (i = 1; i <= USB_RELAY_ID_STR_LEN; i++)
     {
         unsigned char x = (unsigned char)buffer[i];
         if (x <= 0x20 || x >= 0x7F)
@@ -129,9 +134,9 @@ static int enumFunc(USBDEVHANDLE dev, void *context)
         }
     }
 
-    if( buffer[6] != 0 )
+    if( buffer[USB_RELAY_ID_STR_LEN + 1] != 0 )
     {
-        fprintf(stderr, "Bad device ID!\n");
+        printerr("Bad device ID!\n");
         goto next;
     }
 
@@ -140,20 +145,20 @@ static int enumFunc(USBDEVHANDLE dev, void *context)
 
     if ( g_enumCtx.id[0] != 0 )
     {
-        if ( 0 != memcmp(g_enumCtx.id, &buffer[1], 5) )
+        if ( 0 != memcmp(g_enumCtx.id, &buffer[1], USB_RELAY_ID_STR_LEN) )
             goto next;
     }
 #if 0
     if ( g_enumCtx.mydev )
     {
-        fprintf(stderr, "ERROR: More than one relay device found. ID must be specified\n");
+        printerr("ERROR: More than one relay device found. ID must be specified\n");
         usbhidCloseDevice(dev);
         usbhidCloseDevice(g_enumCtx.mydev);
         return 0;
     }
 #endif
     g_enumCtx.mydev = dev;
-    return 0;
+    return 0; /* stop */
 
     next:
     /* Continue search */
@@ -168,36 +173,13 @@ static USBDEVHANDLE openDevice(void)
 
     if ( err || !g_enumCtx.mydev )
     {
-        fprintf(stderr, "error finding USB relay: %s\n", usbErrorMessage(err));
+        printerr("error finding USB relay: %s\n", usbErrorMessage(err));
         return NULL;
     }
 
     return g_enumCtx.mydev;
 }
 
-/* ------------------------------------------------------------------------- */
-#if 0
-static void hexdump(char *buffer, int len)
-{
-int     i;
-FILE    *fp = stdout;
-
-    for(i = 0; i < len; i++){
-        if(i != 0){
-            if(i % 16 == 0){
-                fprintf(fp, "\n");
-            }else{
-                fprintf(fp, " ");
-            }
-        }
-        fprintf(fp, "0x%02x", buffer[i] & 0xff);
-    }
-    if(i != 0)
-        fprintf(fp, "\n");
-}
-#endif
-
-/* ------------------------------------------------------------------------- */
 
 // Read state of all relays
 // @return bit mask of all relays (R1->bit 0, R2->bit 1 ...) or -1 on error
@@ -211,18 +193,18 @@ static int rel_read_status_raw(USBDEVHANDLE dev, void *raw_data)
 
     err = usbhidGetReport(dev, reportnum, buffer, &len);
     if ( err ) {
-        fprintf(stderr, "error reading status: %s\n", usbErrorMessage(err));
+        printerr("error reading status: %s\n", usbErrorMessage(err));
         return -1;
     }
 
     if ( len != 9 || buffer[0] != reportnum ) {
-        fprintf(stderr, "ERROR: wrong HID report returned! %d\n", len);
+        printerr("ERROR: wrong HID report returned! %d\n", len);
         return -2;
     }
 
     if (raw_data) {
         /* copy raw report data */
-        memcpy( raw_data, buffer, sizeof(buffer) );
+        memcpy( raw_data, buffer, len );
     }
 
     return (unsigned char)buffer[8]; /* byte of relay states */
@@ -247,16 +229,17 @@ static int rel_onoff( USBDEVHANDLE dev, int is_on, char const *numstr )
     }
 
     if ( relaynum <= 0 || relaynum > g_max_relay_num ) {
-        fprintf(stderr, "Invalid relay number. Must be 1-%d or ALL)\n", g_max_relay_num);
+        printerr("Invalid relay number. Must be 1-%d or ALL)\n", g_max_relay_num);
         return 1;
     }
 
     memset(buffer, 0, sizeof(buffer));
     buffer[0] = 0; /* report # */
     buffer[1] = is_on ? 0xFF : 0xFD;
+      // ALL ON=0xFE, ALL OFF=0xFC
     buffer[2] = (unsigned char)relaynum;
     if((err = usbhidSetReport(dev, (void*)buffer, 9)) != 0) {
-        fprintf(stderr, "Error writing data: %s\n", usbErrorMessage(err));
+        printerr("Error writing data: %s\n", usbErrorMessage(err));
         return 1;
     }
     
@@ -268,7 +251,7 @@ static int rel_onoff( USBDEVHANDLE dev, int is_on, char const *numstr )
     }
 
     if ( err ) {
-        fprintf(stderr, "Error: failed set %s relay %u\n", is_on ? "ON":"OFF", relaynum);
+        printerr("Error: failed to set relay %u %s\n", relaynum, is_on ? "ON":"OFF");
         return 1;
     }
 
@@ -285,11 +268,10 @@ static int show_status(USBDEVHANDLE dev)
 #define onoff(n) on_off[!!(err & (1U << n))]
 
     err = rel_read_status_raw(dev, buffer);
-    if ( err < 0 ){
-        fprintf(stderr, "error reading data: %s\n", usbErrorMessage(err));
+    if ( err < 0 ) {
+        printerr("Error reading data: %s\n", usbErrorMessage(err));
         err = 1;
     } else {
-        //hexdump(buffer + 1, len - 1);
         switch (g_max_relay_num) {
             case 1:
                 printf("Board ID=[%5.5s] State: R1=%s\n", &buffer[1], onoff(0) );
@@ -302,7 +284,7 @@ static int show_status(USBDEVHANDLE dev)
                 printf("Board ID=[%5.5s] State: R1=%s R3=%s R1=%s R4=%s\n",
                     &buffer[1],	onoff(0), onoff(1), onoff(2), onoff(3) );
                 break;
-            default:
+            default: /* print as bit mask */
                 printf("Board ID=[%5.5s] State: %2.2X (hex)\n", &buffer[1], (unsigned char)err );
                 break;
         }
@@ -335,7 +317,7 @@ static int show_relays(void)
     err = usbhidEnumDevices(USB_CFG_VENDOR_ID, USB_CFG_DEVICE_ID, &g_enumCtx, showFunc);
     if ( err )
     {
-        fprintf(stderr, "Error finding USB relay: %s\n", usbErrorMessage(err));
+        printerr("Error finding USB relays: %s\n", usbErrorMessage(err));
         return 1;
     }
 
@@ -362,8 +344,8 @@ int main(int argc, char **argv)
 
     if ( strncasecmp(arg1, "id=", 3) == 0 ) {
         /* Set the ID for following commands. else use 1st found device.*/
-        if (strlen(&arg1[3]) != 5) {
-            fprintf(stderr, "ERROR: ID must be 5 characters (%s)\n", arg1);
+        if (strlen(&arg1[3]) != USB_RELAY_ID_STR_LEN) {
+            printerr("ERROR: ID must be %d characters (%s)\n", USB_RELAY_ID_STR_LEN, arg1);
             return 1;
         }
         
@@ -396,4 +378,3 @@ int main(int argc, char **argv)
     return err;
 }
 
-/* ------------------------------------------------------------------------- */

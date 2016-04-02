@@ -1,12 +1,12 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="hidusb-relay-cmd"
-	ProjectGUID="{CF9B07CB-509D-43B5-94FC-2BA43427C093}"
-	RootNamespace="hidusb-relay-cmd"
+	Name="usb-relay-dll"
+	ProjectGUID="{0E07152A-666D-4EB4-9049-BDE08C35A86D}"
+	RootNamespace="usbrelaydll"
 	Keyword="Win32Proj"
-	TargetFrameworkVersion="0"
+	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
 		<Platform
@@ -18,9 +18,10 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="Debug"
-			IntermediateDirectory="Debug"
-			ConfigurationType="1"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="2"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -40,14 +41,15 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="\winddk\7.1.0\inc\crt;\winddk\7.1.0\inc\api"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;DEBUG=1;_CRT_SECURE_NO_WARNINGS=1"
+				AdditionalIncludeDirectories="../../commandline;..;\winddk\7.1.0\inc\crt;\winddk\7.1.0\inc\api"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;USBRELAYDLL_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="4"
+				CompileAs="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -60,10 +62,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				OutputFile="$(OutDir)\USB_RELAY_DEVICE.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="D:\winddk\7.1.0\lib\wxp\i386"
+				ModuleDefinitionFile="usb_relay_dll.def"
 				GenerateDebugInformation="true"
-				SubSystem="1"
+				SubSystem="2"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -90,9 +94,11 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="Release"
-			IntermediateDirectory="Release"
-			ConfigurationType="1"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="2"
+			CharacterSet="1"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -111,12 +117,16 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="\winddk\7.1.0\inc\crt;\winddk\7.1.0\inc\api"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS=1"
+				Optimization="2"
+				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories="../../commandline;..;\winddk\7.1.0\inc\crt;\winddk\7.1.0\inc\api"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;USBRELAYDLL_EXPORTS"
 				RuntimeLibrary="0"
+				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
+				CompileAs="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -129,10 +139,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				LinkIncremental="2"
+				OutputFile="$(OutDir)\USB_RELAY_DEVICE.dll"
+				LinkIncremental="1"
 				AdditionalLibraryDirectories="D:\winddk\7.1.0\lib\wxp\i386"
+				ModuleDefinitionFile="usb_relay_dll.def"
 				GenerateDebugInformation="true"
-				SubSystem="1"
+				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="1"
@@ -164,47 +176,51 @@
 	</References>
 	<Files>
 		<Filter
-			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
-			>
-			<File
-				RelativePath=".\hiddata.h"
-				>
-			</File>
-			<File
-				RelativePath=".\hidusb-tool.h"
-				>
-			</File>
-			<File
-				RelativePath=".\targetver.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
-			>
-		</Filter>
-		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\hiddata.c"
+				RelativePath=".\dllmain.c"
 				>
 			</File>
 			<File
-				RelativePath=".\usbrelay-cmd.c"
+				RelativePath="..\..\commandline\hiddata_mswin.c"
+				>
+			</File>
+			<File
+				RelativePath=".\usb_relay_dll.def"
+				>
+			</File>
+			<File
+				RelativePath="..\usb_relay_lib.c"
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath=".\README-hidusb-relay-cmd.txt"
+		<Filter
+			Name="Header Files"
+			Filter="h;hpp;hxx;hm;inl;inc;xsd"
+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-		</File>
+			<File
+				RelativePath=".\targetver.h"
+				>
+			</File>
+			<File
+				RelativePath="..\usb_relay_device.h"
+				>
+			</File>
+			<File
+				RelativePath="..\usb_relay_hw.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Resource Files"
+			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
+			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
+			>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>
