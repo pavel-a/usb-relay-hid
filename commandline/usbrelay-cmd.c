@@ -90,7 +90,7 @@ static int enumFunc(USBDEVHANDLE dev, void *context)
         goto next;
     }
 
-    i = strlen(buffer);
+    i = (int)strlen(buffer);
     if ( i != strlen(productName) + 1 )
     {
         goto next;
@@ -164,10 +164,6 @@ static int enumFunc(USBDEVHANDLE dev, void *context)
 static USBDEVHANDLE openDevice(void)
 {
     int err;
-
-    // TODO: enumerate all instances, then filter  by unique ID
-    //$$$ find any one device
-
     err = usbhidEnumDevices(USB_CFG_VENDOR_ID, USB_CFG_DEVICE_ID, &g_enumCtx, enumFunc);
 
     if ( err || !g_enumCtx.mydev )
@@ -365,12 +361,13 @@ int main(int argc, char **argv)
     }
 
     if ( strncasecmp(arg1, "id=", 3) == 0 ) {
+        /* Set the ID for following commands. else use 1st found device.*/
         if (strlen(&arg1[3]) != 5) {
             fprintf(stderr, "ERROR: ID must be 5 characters (%s)\n", arg1);
             return 1;
         }
         
-        strcpy( g_enumCtx.id, &arg1[3]);
+        strcpy(g_enumCtx.id, &arg1[3]);
 
         // shift following params
         arg1 = arg2;
@@ -383,7 +380,6 @@ int main(int argc, char **argv)
 
     if ( strncasecmp(arg1, "stat", 4) == 0 ) { // stat|state|status
         err = show_status(dev);
-        // TODO enumerate all devices
     }else if( strcasecmp(arg1, "on" ) == 0) {
         err = rel_onoff(dev, 1, arg2);
     }else if( strcasecmp(arg1, "off" ) == 0) {

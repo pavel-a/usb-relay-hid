@@ -1,5 +1,6 @@
-;
-; http://editorconfig.org/#supported-properties
+; Editorconfig settings: see http://editorconfig.org/#supported-properties
+; Keep this file consistent with .gitattributes ! end_of_line <-> eol=crlf
+
 root = true  ; top-most EditorConfig file
 
 [*]
