@@ -2,3 +2,5 @@
 **/Release/
 **/x64/
 **/*.cache
+.vs
+**/*.VC.db
