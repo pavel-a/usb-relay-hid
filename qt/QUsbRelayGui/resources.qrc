@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>device_and_hardware_w.ico</file>
+    </qresource>
+</RCC>
