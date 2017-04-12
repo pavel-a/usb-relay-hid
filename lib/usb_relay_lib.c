@@ -203,7 +203,7 @@ int enumfunc(USBDEVHANDLE usbh, void *context)
     int err;
     char buffer[128*sizeof(short)]; // max USB string is 128 UTF-16 chars
     int num = 0;
-    int i;
+    size_t i;
     struct usbrelay_internal_s *q;
     struct enumctx_s *ectx = (struct enumctx_s *)context;
 
@@ -215,7 +215,7 @@ int enumfunc(USBDEVHANDLE usbh, void *context)
         goto next;
     }
 
-    i = (int)strlen(buffer);
+    i = strlen(buffer);
     if ( i != strlen(productName) + 1 )
     {
         goto next;
@@ -301,7 +301,7 @@ int enumOpenfunc(USBDEVHANDLE usbh, void *context)
     int err;
     char buffer[128*sizeof(short)]; // max USB string is 128 UTF-16 chars
     int num = 0;
-    int i;
+    size_t i;
     struct enumctx_s *ectx = (struct enumctx_s *)context;
     struct usbrelay_internal_s *q = ectx->head;
 

@@ -9,7 +9,7 @@ Widget::Widget(QWidget *parent) :
 
     list.searchForDevices();
 
-    for(auto i=0; i< list.m_devices.size();i++){
+    for(size_t i=0; i<list.m_devices.size(); i++){
 
         getRelayStatus(i);
 
