@@ -81,8 +81,6 @@ static int enumFunc(USBDEVHANDLE dev, void *context)
     int num = 0;
     int i;
 
-	(context); // ~ unreferenced warning
-
     err = usbhidGetVendorString(dev, buffer, sizeof(buffer));
     if ( err || 0 != strcmp( buffer, vendorName) )
     {
