@@ -14,6 +14,7 @@
 // OS X: Using IOKit HID functionality
 #include <IOKit/IOKitLib.h>
 #include <IOKit/hid/IOHIDDevice.h>
+#include <IOKit/hid/IOHIDManager.h>
 
 
 #if 0 //ifdef DEBUG
