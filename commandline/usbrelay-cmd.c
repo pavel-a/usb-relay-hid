@@ -279,7 +279,7 @@ static int show_status(USBDEVHANDLE dev)
                     &buffer[1],	onoff(0), onoff(1) );
                 break;
             case 4:
-                printf("Board ID=[%5.5s] State: R1=%s R3=%s R1=%s R4=%s\n",
+                printf("Board ID=[%5.5s] State: R1=%s R2=%s R3=%s R4=%s\n",
                     &buffer[1],	onoff(0), onoff(1), onoff(2), onoff(3) );
                 break;
             default: /* print as bit mask */
