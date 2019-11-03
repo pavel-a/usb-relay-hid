@@ -10,7 +10,7 @@
  * Copyright: (c) 2008 by OBJECTIVE DEVELOPMENT Software GmbH
  */
 
-#define A_VER_STR "r1.4"
+#define A_VER_STR "r2.1"
 #define A_URL "http://vusb.wikidot.com/project:driver-less-usb-relays-hid-interface"
 
 #include <stdio.h>
