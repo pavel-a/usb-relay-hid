@@ -10,7 +10,7 @@
  * Copyright: (c) 2008 by OBJECTIVE DEVELOPMENT Software GmbH
  */
 
-#define A_VER_STR "r1.4"
+#define A_VER_STR "r2.1"
 #define A_URL "http://vusb.wikidot.com/project:driver-less-usb-relays-hid-interface"
 
 #include <stdio.h>
@@ -279,7 +279,7 @@ static int show_status(USBDEVHANDLE dev)
                     &buffer[1],	onoff(0), onoff(1) );
                 break;
             case 4:
-                printf("Board ID=[%5.5s] State: R1=%s R3=%s R1=%s R4=%s\n",
+                printf("Board ID=[%5.5s] State: R1=%s R2=%s R3=%s R4=%s\n",
                     &buffer[1],	onoff(0), onoff(1), onoff(2), onoff(3) );
                 break;
             default: /* print as bit mask */
