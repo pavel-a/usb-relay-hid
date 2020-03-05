@@ -70,7 +70,7 @@ It should be called at the end of execution to avoid memory leaks.
 int USBRL_API usb_relay_exit(void);
 
 /** Enumerate the USB Relay Devices.
-@return Pointer to list of usb_relay_device_info
+@return Pointer to list of usb_relay_device_info, NULL if unsuccessful.
         Caller should free it with usb_relay_device_free_enumerate
 */
 pusb_relay_device_info_t USBRL_API usb_relay_device_enumerate(void);

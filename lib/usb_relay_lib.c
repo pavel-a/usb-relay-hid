@@ -385,6 +385,9 @@ pusb_relay_device_info_t USBRL_API usb_relay_device_enumerate(void)
                       (void*)&ectx,
                       enumfunc);
 
+    if ( ret != 0 )
+      return NULL;
+
     return (pusb_relay_device_info_t)ectx.head;
 }
 
