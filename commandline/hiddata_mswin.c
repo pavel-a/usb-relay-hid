@@ -34,6 +34,7 @@
 #define snprintf   _snprintf
 #endif /* VS2015 */
 #else /* GCC, Mingw... */
+#include "hidsdi.h"
 #endif /*_MSC_VER*/
 
 /*
