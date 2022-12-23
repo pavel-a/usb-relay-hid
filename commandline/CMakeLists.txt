@@ -13,6 +13,10 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL Darwin AND NOT USE_LIBUSB_ON_MACOS)
         "-framework CoreFoundation"
         "-framework IOKit"
     )
+elseif(MINGW)
+    message("Building against hid")
+    set(SOURCES hiddata_mswin.c)
+    set(LIBRARIES hid setupapi)
 else()
     set(SOURCES hiddata_libusb01.c)
     include(FindPkgConfig)

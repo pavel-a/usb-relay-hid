@@ -3,6 +3,7 @@ QT  -= core gui
 TARGET = usb_relay_device
 TEMPLATE = lib
 CONFIG += dll
+CONFIG += c++11
 
 SOURCES += ../../lib/usb_relay_lib.c
 win32{
@@ -20,7 +21,8 @@ INCLUDEPATH += ../../lib/usb-relay-dll/
 INCLUDEPATH += ../../commandline/
 
 win32{
-    INCLUDEPATH += C:/Program Files (x86)/Windows Kits/8.0/Include/
+#    INCLUDEPATH += C:/Program Files (x86)/Windows Kits/8.0/Include/
+    LIBS += -lsetupapi -lhid
 }
 
 unix:{
