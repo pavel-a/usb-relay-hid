@@ -96,8 +96,14 @@ int usbhidEnumDevices(int vendor, int product,
     mgr = IOHIDManagerCreate(kCFAllocatorDefault, kIOHIDOptionsTypeNone);
     if (!mgr)
         return USBHID_ERR_IO_HID;
-    // *** TODO: match by vendor/product right here ***
-    IOHIDManagerSetDeviceMatching(mgr, NULL);
+
+    // Create dictionary to match devices by vendor 0x16c0
+    int c_vendorid = 0x16c0;
+    CFMutableDictionaryRef dictionary = CFDictionaryCreateMutable(kCFAllocatorDefault,1,&kCFTypeDictionaryKeyCallBacks,&kCFTypeDictionaryValueCallBacks);
+    CFNumberRef vendorid = CFNumberCreate( kCFAllocatorDefault, kCFNumberIntType, &c_vendorid );
+    CFDictionarySetValue( dictionary, CFSTR( kIOHIDVendorIDKey ), vendorid );
+
+    IOHIDManagerSetDeviceMatching(mgr, dictionary);
     IOReturn ir = IOHIDManagerOpen(mgr, kIOHIDOptionsTypeNone);
     if (ir != kIOReturnSuccess)
         return USBHID_ERR_IO_HID;
